@@ -139,32 +139,63 @@ def home():return redirect("/mobile")
 
 @app.route("/mobile")
 def mobile():
-    return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Deewaryn Staff</title><style>
-:root{--g:#169b62;--d:#0c251b;--bg:#f3f6f5;--m:#748078;--line:#e1e7e3}
-*{box-sizing:border-box}body{margin:0;font-family:Arial;background:var(--bg);color:#17231d}.login{min-height:100vh;background:var(--d);display:grid;place-items:center;padding:20px}
-.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:10px}.box{width:min(440px,100%);background:#fff;border-radius:22px;padding:22px}
-h1,h2,h3{margin:0 0 8px}.muted{color:var(--m);font-size:12px}.input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;margin-top:10px}
-.btn{border:0;border-radius:9px;padding:10px 13px;font-weight:800;text-decoration:none;display:inline-block}.green{background:var(--g);color:#fff}.soft{background:#e8f4ed;color:var(--g)}
-.head{background:var(--d);color:#fff;padding:17px 15px}.content{max-width:900px;margin:auto;padding:14px 14px 82px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.kpi b{display:block;font-size:20px;margin-top:5px}.nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;overflow-x:auto}
-.nav button{min-width:90px;flex:1;border:0;background:#fff;padding:11px 5px;color:var(--m);font-weight:800}.nav button.on{color:var(--g)}.row{display:flex;gap:8px;align-items:center}.grow{flex:1}
-@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
-</style></head><body><div id="root"></div><script>
-const mods=[['home','Home'],['properties','Properties'],['contacts','CRM'],['deals','Deals'],['tasks','Tasks'],['employees','Employees'],['rent','Rent'],['projects','Projects'],['maintenance','Maintenance'],['ledger','Finance']];
-let user=null,tab='home';
-const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-async function api(p,o={}){let t=localStorage.dw_token,h={'Content-Type':'application/json',...(o.headers||{})};if(t)h.Authorization='Bearer '+t;let r=await fetch(p,{...o,headers:h}),d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||('Server '+r.status));return d}
-function shell(b){return '<div class="head"><h2>DEEWARYN</h2><div style="opacity:.7">Private Staff Cloud</div></div><div class="content">'+b+'</div><div class="nav">'+mods.map(x=>'<button class="'+(tab==x[0]?'on':'')+'" onclick="go(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'}
-function loginView(){return '<div class="login"><div class="box"><h1>Deewaryn Staff</h1><div class="muted">Cloud login — works even when office laptop is off</div><input id="u" class="input" value="admin" placeholder="Username"><input id="p" class="input" type="password" value="admin123" placeholder="Password"><button class="btn green" style="width:100%;margin-top:12px" onclick="login()">Sign In</button></div></div>'}
-async function login(){try{let d=await api('/api/mobile/login',{method:'POST',body:JSON.stringify({username:u.value,password:p.value})});localStorage.dw_token=d.token;localStorage.dw_user=JSON.stringify(d.user);user=d.user;render()}catch(e){alert(e.message)}}
-function logout(){localStorage.clear();user=null;render()}function go(x){tab=x;render()}
-async function home(){let d=await api('/api/mobile/dashboard');let ks=[['Properties',d.properties],['Active CRM',d.contacts],['Open Deals',d.open_deals],['Commission','PKR '+Number(d.commission||0).toLocaleString()],['Income','PKR '+Number(d.income||0).toLocaleString()],['Expense','PKR '+Number(d.expense||0).toLocaleString()],['Profit','PKR '+Number(d.profit||0).toLocaleString()],['Tasks',d.tasks]];return '<div class="row"><div class="grow"><h2>Command Center</h2><div class="muted">'+esc(user.name)+' • '+esc(user.role)+'</div></div><button class="btn soft" onclick="logout()">Logout</button></div><div class="grid" style="margin-top:12px">'+ks.map(x=>'<div class="card kpi"><span class="muted">'+x[0]+'</span><b>'+x[1]+'</b></div>').join('')+'</div><h3>Follow-ups</h3>'+(d.followups||[]).map(x=>'<div class="card"><b>'+esc(x.name)+'</b><div class="muted">'+esc(x.stage)+' • '+esc(x.followup)+'</div><a class="btn green" href="tel:'+esc(x.phone)+'">Call</a> <a class="btn soft" href="https://wa.me/'+esc(String(x.phone||'').replace(/\D/g,'').replace(/^0/,'92'))+'">WhatsApp</a></div>').join('')}
-const prim={properties:'code',contacts:'name',deals:'title',tasks:'title',employees:'name',rent:'tenant',projects:'name',maintenance:'title',ledger:'category'};
-async function list(t){let d=await api('/api/mobile/'+t);return '<div class="row"><div class="grow"><h2>'+mods.find(x=>x[0]==t)[1]+'</h2><div class="muted">'+d.length+' records</div></div></div>'+d.map(x=>'<div class="card"><b>'+esc(x[prim[t]])+'</b><div class="muted">'+Object.entries(x).filter(([k,v])=>v&&k!='id'&&k!='created'&&k!=prim[t]).slice(0,5).map(([k,v])=>esc(v)).join(' • ')+'</div>'+(x.phone||x.tenant_phone?'<div style="margin-top:8px"><a class="btn green" href="tel:'+esc(x.phone||x.tenant_phone)+'">Call</a></div>':'')+'</div>').join('')}
-async function render(){let r=document.getElementById('root');if(!user){r.innerHTML=loginView();return}r.innerHTML=shell('<div class="card">Loading...</div>');try{r.innerHTML=shell(tab=='home'?await home():await list(tab))}catch(e){r.innerHTML=shell('<div class="card"><b>Error</b><p>'+esc(e.message)+'</p><button class="btn green" onclick="render()">Retry</button></div>')}}
-try{user=JSON.parse(localStorage.dw_user||'null')}catch(e){}render();
-</script></body></html>"""
+    return """<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Deewaryn Staff</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6f5;color:#17231d}
+.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0c251b;padding:20px}
+.box{width:min(420px,100%);background:#fff;border-radius:20px;padding:24px;box-sizing:border-box}
+h1{margin:0 0 8px}.muted{color:#738077;font-size:13px;margin-bottom:18px}
+input{width:100%;box-sizing:border-box;padding:13px 14px;margin:8px 0;border:1px solid #dfe6e2;border-radius:10px;font-size:16px}
+button{width:100%;padding:13px;border:0;border-radius:10px;background:#169b62;color:#fff;font-weight:700;font-size:16px;margin-top:10px;cursor:pointer}
+#msg{margin-top:12px;font-size:13px;color:#b42318;min-height:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="box">
+    <h1>Deewaryn Staff</h1>
+    <div class="muted">Private cloud login — office laptop can stay off.</div>
+    <input id="u" value="admin" placeholder="Username">
+    <input id="p" type="password" placeholder="Password">
+    <button id="loginBtn" type="button">Sign In</button>
+    <div id="msg"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var btn=document.getElementById('loginBtn');
+  var msg=document.getElementById('msg');
+  btn.addEventListener('click', async function(){
+    msg.textContent='Signing in...';
+    try{
+      var r=await fetch('/api/mobile/login',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          username:document.getElementById('u').value,
+          password:document.getElementById('p').value
+        })
+      });
+      var d=await r.json();
+      if(!r.ok){throw new Error(d.error||'Login failed');}
+      localStorage.setItem('dw_token',d.token);
+      localStorage.setItem('dw_user',JSON.stringify(d.user));
+      msg.style.color='#169b62';
+      msg.textContent='Login successful. Cloud connection is working.';
+    }catch(e){
+      msg.style.color='#b42318';
+      msg.textContent=e.message||'Login failed';
+    }
+  });
+})();
+</script>
+</body>
+</html>"""
 
 try:init_db()
 except Exception as e:print("DB init deferred:",e)
