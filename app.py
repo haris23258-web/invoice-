@@ -98,15 +98,22 @@ def dashboard():
         r=query(sql,p,True);return list(r.values())[0] if r else 0
     inc=scalar("SELECT COALESCE(SUM(amount),0) FROM ledger WHERE etype='Income' AND dt LIKE %s",(month+"%",))
     exp=scalar("SELECT COALESCE(SUM(amount),0) FROM ledger WHERE etype='Expense' AND dt LIKE %s",(month+"%",))
-    follow=query("""SELECT name,phone,followup,stage FROM contacts
-                    WHERE COALESCE(TRIM(followup),'')<>'' ORDER BY followup LIMIT 10""")
+    follow=query("""SELECT id,name,phone,followup,stage,location,budget FROM contacts
+                    WHERE COALESCE(TRIM(followup),'')<>'' AND COALESCE(stage,'') NOT IN ('Closed','Lost')
+                    ORDER BY followup LIMIT 8""")
     return jsonify(
         properties=scalar("SELECT COUNT(*) FROM properties"),
+        available_properties=scalar("SELECT COUNT(*) FROM properties WHERE COALESCE(status,'Available')='Available'"),
         contacts=scalar("SELECT COUNT(*) FROM contacts WHERE COALESCE(stage,'') NOT IN ('Closed','Lost')"),
+        pending_clients=scalar("SELECT COUNT(*) FROM contacts WHERE COALESCE(stage,'New') IN ('New','Follow-up','Visit','Negotiation')"),
+        done_clients=scalar("SELECT COUNT(*) FROM contacts WHERE COALESCE(stage,'')='Closed'"),
         open_deals=scalar("SELECT COUNT(*) FROM deals WHERE COALESCE(stage,'') NOT IN ('Closed Won','Closed Lost')"),
+        won_deals=scalar("SELECT COUNT(*) FROM deals WHERE COALESCE(stage,'')='Closed Won'"),
         commission=scalar("SELECT COALESCE(SUM(commission),0) FROM deals WHERE COALESCE(stage,'')<>'Closed Lost'"),
         income=inc,expense=exp,profit=float(inc or 0)-float(exp or 0),
         tasks=scalar("SELECT COUNT(*) FROM tasks WHERE COALESCE(status,'')<>'Done'"),
+        staff=scalar("SELECT COUNT(*) FROM employees WHERE COALESCE(status,'Active')='Active'"),
+        rent_due=scalar("SELECT COUNT(*) FROM rent WHERE COALESCE(status,'')='Due'"),
         followups=follow)
 
 @app.route("/api/mobile/<table>",methods=["GET","POST"])
@@ -135,6 +142,44 @@ def table_api(table):
     sql=f"INSERT INTO {table}({','.join(keys)},created) VALUES({','.join(['%s']*len(keys))},%s)"
     rid=execute(sql,tuple(vals+[datetime.now().strftime("%Y-%m-%d %H:%M")]),True)
     return jsonify(ok=True,id=rid)
+
+@app.patch("/api/mobile/<table>/<int:row_id>")
+@auth
+def table_update(table,row_id):
+    if table not in TABLES:return jsonify(error="Unknown module"),404
+    x=request.get_json(silent=True) or {}
+    fields=TABLES[table]
+    keys=[k for k in fields if k in x]
+    if not keys:return jsonify(error="No fields to update"),400
+    numeric={"price","beds","baths","budget","deal_value","commission","salary","visits","calls","properties","deals","expense","amount","monthly_rent","security","due_day","contract","spent","progress","estimate"}
+    vals=[]
+    for k in keys:
+        v=x.get(k)
+        if k in numeric:
+            try:v=float(v) if str(v).strip() else 0
+            except:v=0
+        vals.append(v)
+    sets=",".join([f"{k}=%s" for k in keys])
+    execute(f"UPDATE {table} SET {sets} WHERE id=%s",tuple(vals+[row_id]))
+    return jsonify(ok=True,id=row_id)
+
+@app.get("/api/mobile/finance-summary")
+@auth
+def finance_summary():
+    month=(request.args.get("month") or datetime.now().strftime("%Y-%m")).strip()
+    income=query("""SELECT category,COALESCE(SUM(amount),0) amount FROM ledger
+                    WHERE etype='Income' AND dt LIKE %s GROUP BY category ORDER BY amount DESC""",(month+"%",))
+    expense=query("""SELECT category,COALESCE(SUM(amount),0) amount FROM ledger
+                     WHERE etype='Expense' AND dt LIKE %s GROUP BY category ORDER BY amount DESC""",(month+"%",))
+    source=query("""SELECT source,COALESCE(SUM(amount),0) amount FROM ledger
+                    WHERE etype='Income' AND dt LIKE %s GROUP BY source ORDER BY amount DESC""",(month+"%",))
+    def total(kind):
+        r=query("SELECT COALESCE(SUM(amount),0) total FROM ledger WHERE etype=%s AND dt LIKE %s",(kind,month+"%"),True)
+        return float(r["total"] or 0)
+    inc=total("Income");exp=total("Expense")
+    recent=query("SELECT * FROM ledger ORDER BY id DESC LIMIT 12")
+    return jsonify(month=month,income=inc,expense=exp,profit=inc-exp,income_by_category=income,
+                   expense_by_category=expense,income_by_source=source,recent=recent)
 
 @app.route("/")
 def home():return redirect("/mobile")
@@ -183,20 +228,44 @@ def public_client_form(token):
                  float(f.get("budget") or 0),f.get("location",""),f.get("requirement",""),
                  datetime.now().strftime("%Y-%m-%d %H:%M")))
         execute("UPDATE client_forms SET used=1 WHERE token=%s",(token,))
-        return """<!doctype html><html><body style="font-family:Arial;background:#f3f6f5;padding:30px">
-        <div style="max-width:520px;margin:auto;background:white;padding:30px;border-radius:18px">
-        <h2 style="color:#169b62">Thank you</h2><p>Your requirement has been received by Deewaryn.</p></div></body></html>"""
-    return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Deewaryn Client Requirement</title><style>
-    body{font-family:Arial;background:#0c251b;margin:0;padding:20px}.box{max-width:620px;margin:30px auto;background:#fff;border-radius:20px;padding:24px}
-    input,select,textarea{width:100%;box-sizing:border-box;padding:12px;margin:7px 0 14px;border:1px solid #dfe7e3;border-radius:10px}
-    button{width:100%;padding:13px;border:0;border-radius:10px;background:#169b62;color:#fff;font-weight:800}
-    </style></head><body><div class="box"><h1>Deewaryn</h1><p>Tell us what property you need. Our team will contact you.</p>
-    <form method="post"><label>Name</label><input name="name" required><label>Phone</label><input name="phone" required>
-    <label>Email</label><input name="email"><label>I am looking to</label><select name="ctype"><option>Buyer</option><option>Tenant</option><option>Investor</option></select>
-    <label>Budget (PKR)</label><input name="budget" type="number"><label>Preferred Location</label><input name="location">
-    <label>Requirement</label><textarea name="requirement" rows="5" placeholder="e.g. 10 marla house, 4 beds, Bahria Phase 4"></textarea>
-    <button type="submit">Send Requirement</button></form></div></body></html>"""
+        return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Requirement Received | Deewaryn</title></head>
+        <body style="margin:0;font-family:Arial;background:#0b2b1e;padding:24px">
+        <div style="max-width:620px;margin:50px auto;background:white;padding:34px;border-radius:22px">
+        <div style="font-weight:900;font-size:30px;color:#10251c">Dee<span style="color:#159b62">waryn</span></div>
+        <h2 style="margin-top:28px;color:#159b62">Requirement received successfully</h2>
+        <p style="color:#65766d;line-height:1.6">Thank you. Your property requirement has been sent directly to the Deewaryn team. A team member can now review suitable options and contact you.</p>
+        <p style="font-size:12px;color:#829087">Official website: deewaryn.com</p></div></body></html>"""
+    ref=token[-6:].upper()
+    return f"""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="utf-8"><title>Official Property Requirement Form | Deewaryn</title>
+    <style>
+    *{{box-sizing:border-box}}body{{font-family:Arial;margin:0;background:linear-gradient(135deg,#08271a,#145438);color:#10251c;padding:18px}}
+    .wrap{{max-width:720px;margin:22px auto}}.trust{{color:#d8e7df;text-align:center;font-size:13px;margin-bottom:12px}}
+    .box{{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.25)}}
+    .hero{{background:#f7faf8;padding:26px 28px;border-bottom:1px solid #e3ebe6}}.brand{{font-size:32px;font-weight:900}}.brand span{{color:#159b62}}
+    .badge{{display:inline-block;background:#e8f6ef;color:#0f7c4d;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800;margin-top:10px}}
+    .body{{padding:26px 28px}}.grid{{display:grid;grid-template-columns:1fr 1fr;gap:14px}}
+    label{{display:block;font-size:12px;font-weight:800;color:#607168;margin-bottom:6px}}
+    input,select,textarea{{width:100%;padding:12px;border:1px solid #dfe7e3;border-radius:10px;font-size:15px}}textarea{{min-height:120px;resize:vertical}}
+    .full{{grid-column:1/-1}}button{{width:100%;padding:14px;border:0;border-radius:11px;background:#159b62;color:#fff;font-weight:900;font-size:16px;margin-top:18px}}
+    .privacy{{margin-top:16px;padding:13px;background:#f3f8f5;border-radius:10px;color:#66776f;font-size:12px;line-height:1.5}}
+    .foot{{text-align:center;color:#dce9e2;font-size:12px;margin-top:14px}}@media(max-width:620px){{.grid{{grid-template-columns:1fr}}.full{{grid-column:auto}}}}
+    </style></head><body><div class="wrap"><div class="trust">Secure HTTPS form • Reference {ref}</div><div class="box">
+    <div class="hero"><div class="brand">Dee<span>waryn</span></div><div style="margin-top:5px;color:#607168">Real Estate • Rawalpindi & Islamabad</div>
+    <div class="badge">Official Property Requirement Form</div></div>
+    <div class="body"><h2 style="margin-top:0">Tell us what you need</h2><p style="color:#6c7c74">Fill this short form so our team can shortlist suitable properties before contacting you.</p>
+    <form method="post"><div class="grid">
+    <div><label>Full name *</label><input name="name" required placeholder="Your name"></div>
+    <div><label>Phone / WhatsApp *</label><input name="phone" required placeholder="03xx xxxxxxx"></div>
+    <div><label>Email</label><input name="email" type="email" placeholder="Optional"></div>
+    <div><label>I am looking to</label><select name="ctype"><option>Buyer</option><option>Tenant</option><option>Investor</option></select></div>
+    <div><label>Budget (PKR)</label><input name="budget" type="number" placeholder="e.g. 35000000"></div>
+    <div><label>Preferred location</label><input name="location" placeholder="e.g. Bahria Town Phase 4"></div>
+    <div class="full"><label>Property requirement</label><textarea name="requirement" placeholder="Example: 10 marla full house, 5 bedrooms, parking, near main road"></textarea></div>
+    </div><button type="submit">Send Requirement to Deewaryn</button></form>
+    <div class="privacy"><b>Your privacy matters.</b> The information you submit here is sent to the Deewaryn team for property matching and follow-up. We do not ask for passwords, PINs, or card details on this form.</div>
+    </div></div><div class="foot">deewaryn.com • Reference {ref}</div></div></body></html>"""
 
 @app.get("/api/mobile/matches/<int:contact_id>")
 @auth
@@ -259,6 +328,8 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .form{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.field label{display:block;font-size:11px;font-weight:900;color:#65766d;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px}.full{grid-column:1/-1}
 .login{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#08271a,#145438);padding:20px}.loginbox{width:min(430px,100%);background:#fff;border-radius:24px;padding:28px}.loginbox input{width:100%;padding:13px;margin:7px 0;border:1px solid var(--line);border-radius:10px}
 .msglist{max-height:330px;overflow:auto}.msg{border-bottom:1px solid var(--line);padding:10px 0}.score{font-weight:900;color:var(--g2)}
+.stagebar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}.stagebtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:800;cursor:pointer}
+.stagebtn:hover{border-color:var(--g);color:var(--g2)}.finrow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.miniList{display:grid;gap:8px}.miniItem{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:11px}.bar{height:8px;background:#edf2ef;border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;background:var(--g)}
 @media(max-width:1000px){.shell{grid-template-columns:1fr}.side{position:fixed;left:0;right:0;bottom:0;top:auto;height:68px;display:flex;overflow-x:auto;z-index:30;padding:7px}.group{display:none}.nav{min-width:120px;text-align:center}.main{padding-bottom:85px}.kpis{grid-template-columns:repeat(2,1fr)}.cols2{grid-template-columns:1fr}}
 @media(max-width:650px){.main{padding:14px}.quick{grid-template-columns:repeat(2,1fr)}.form{grid-template-columns:1fr}.full{grid-column:auto}.head h1{font-size:22px}}
 </style></head><body><div id="app"></div><div id="modal" class="modal"></div>
@@ -281,7 +352,19 @@ const navGroups=[
 ];
 function shell(body){return '<div class="top"><div><div class="brand">Dee<span>waryn</span></div><div class="sub">Enterprise Command Center</div></div><div class="grow"></div><div class="user">'+esc(user?.name||'')+' • '+esc(user?.role||'')+'</div><button class="btn soft" style="margin-left:12px" onclick="logout()">Logout</button></div><div class="shell"><aside class="side">'+navGroups.map(g=>'<div class="group">'+g[0]+'</div>'+g[1].map(n=>'<button class="nav '+(view===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')">'+n[1]+'</button>').join('')).join('')+'</aside><main class="main">'+body+'</main></div>'}
 function go(v){view=v;render()}
-async function dashboard(){let d=await api('/api/mobile/dashboard');return '<div class="head"><div><h1>Executive Dashboard</h1><div class="muted">Sales, staff, property and finance at a glance</div></div></div><div class="grid kpis">'+[['Properties',d.properties],['Active Clients',d.contacts],['Open Deals',d.open_deals],['Commission',money(d.commission)],['Income',money(d.income)],['Expense',money(d.expense)],['Profit',money(d.profit)],['Open Tasks',d.tasks]].map(x=>'<div class="card kpi"><small>'+x[0]+'</small><b>'+x[1]+'</b></div>').join('')+'</div><div class="grid cols2" style="margin-top:14px"><div class="card section"><h3>Quick Actions</h3><div class="quick"><button onclick="go(\'crm\')">+ Client</button><button onclick="go(\'properties\')">+ Property</button><button onclick="go(\'deals\')">+ Deal</button><button onclick="go(\'clientform\')">Send Client Form</button></div></div><div class="card section"><h3>Follow-ups</h3>'+((d.followups||[]).slice(0,5).map(x=>'<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>'+esc(x.name)+'</b><div class="muted">'+esc(x.stage)+' • '+esc(x.followup)+'</div></div>').join('')||'<div class="empty">No follow-ups</div>')+'</div></div>'}
+async function dashboard(){
+ let d=await api('/api/mobile/dashboard');
+ let follow=(d.followups||[]).slice(0,6);
+ return '<div class="head"><div><h1>Executive Dashboard</h1><div class="muted">Today\'s business overview • clients, properties, team and finance</div></div><div class="grow"></div><button class="btn gold" onclick="go(\'clientform\')">Send Client Form</button></div>'+
+ '<div class="grid kpis">'+[
+ ['Available Properties',d.available_properties],['Pending Clients',d.pending_clients],['Open Deals',d.open_deals],['Won Deals',d.won_deals],
+ ['Monthly Income',money(d.income)],['Monthly Expense',money(d.expense)],['Net Profit',money(d.profit)],['Active Staff',d.staff]
+ ].map(x=>'<div class="card kpi"><small>'+x[0]+'</small><b>'+x[1]+'</b></div>').join('')+'</div>'+
+ '<div class="grid cols2" style="margin-top:14px"><div class="card section"><h3>Business Control</h3><div class="quick">'+
+ '<button onclick="go(\'crm\')">Clients & Follow-ups</button><button onclick="go(\'properties\')">Property Inventory</button><button onclick="go(\'staff\')">Staff Performance</button><button onclick="go(\'finance\')">Office Finance</button>'+
+ '</div><div style="margin-top:14px" class="muted">Rent due: <b>'+d.rent_due+'</b> • Open tasks: <b>'+d.tasks+'</b> • Closed clients: <b>'+d.done_clients+'</b></div></div>'+
+ '<div class="card section"><h3>Priority Follow-ups</h3>'+(follow.length?follow.map(x=>'<div class="miniItem"><div class="grow"><b>'+esc(x.name)+'</b><div class="muted">'+esc(x.location||'')+' • '+esc(x.followup||'')+'</div></div><button class="btn soft tiny" onclick="go(\'crm\')">Open</button></div>').join(''):'<div class="empty">No pending follow-ups.</div>')+'</div></div>';
+}
 const cfg={
  crm:{api:'contacts',title:'CRM / Clients',primary:'name',cols:['name','phone','ctype','budget','location','stage','assigned','followup']},
  deals:{api:'deals',title:'Deals Pipeline',primary:'title',cols:['title','client','property_code','stage','deal_value','commission','assigned','next_action']},
@@ -305,18 +388,64 @@ const fields={
  maintenance:[['title','Job'],['client','Client'],['phone','Phone'],['location','Location'],['category','Category'],['priority','Priority'],['assigned','Assigned'],['status','Status'],['estimate','Estimate','number'],['spent','Spent','number'],['notes','Notes','textarea']]
 };
 function fmt(k,v){if(v===null||v==='')return '—';if(['price','budget','deal_value','commission','salary','expense','amount','monthly_rent','security','contract','spent','estimate'].includes(k))return money(v);if(['status','stage','priority','purpose','etype'].includes(k))return '<span class="chip">'+esc(v)+'</span>';return esc(v)}
-async function listPage(key){let c=cfg[key],d=await api('/api/mobile/'+c.api);let action='<button class="btn gold" onclick="openAdd(\''+c.api+'\')">+ Add New</button>';return '<div class="head"><div><h1>'+c.title+'</h1><div class="muted">'+d.length+' records</div></div><div class="grow"></div>'+action+'</div><div class="toolbar"><input class="search" placeholder="Search..." onkeydown="if(event.key===\'Enter\')searchPage(\''+key+'\',this.value)"></div><div class="card tablebox">'+(d.length?'<table class="table"><thead><tr>'+c.cols.map(x=>'<th>'+x.replace(/_/g,' ')+'</th>').join('')+(key==='crm'?'<th>Actions</th>':'')+'</tr></thead><tbody>'+d.map(r=>'<tr>'+c.cols.map(x=>'<td>'+fmt(x,r[x])+'</td>').join('')+(key==='crm'?'<td><div class="actions">'+(r.phone?'<a class="btn green tiny" href="tel:'+esc(r.phone)+'">Call</a><a class="btn soft tiny" href="https://wa.me/'+esc(String(r.phone).replace(/[^0-9]/g,'').replace(/^0/,'92'))+'">WhatsApp</a>':'')+'<button class="btn gold tiny" onclick="showMatches('+r.id+',\''+esc(r.name).replace(/'/g,"&#39;")+'\')">Match</button></div></td>':'')+'</tr>').join('')+'</tbody></table>':'<div class="empty">No records yet.</div>')+'</div>'}
+async function listPage(key){
+ let cc=cfg[key],d=await api('/api/mobile/'+cc.api);
+ let action='<button class="btn gold" onclick="openAdd(\''+cc.api+'\')">+ Add New</button>';
+ let crmFilters=key==='crm'?'<div class="stagebar"><button class="stagebtn" onclick="crmFilter(\'all\')">All</button><button class="stagebtn" onclick="crmFilter(\'pending\')">Pending</button><button class="stagebtn" onclick="crmFilter(\'done\')">Done</button><button class="stagebtn" onclick="crmFilter(\'lost\')">Lost</button></div>':'';
+ return '<div class="head"><div><h1>'+cc.title+'</h1><div class="muted">'+d.length+' records</div></div><div class="grow"></div>'+action+'</div>'+crmFilters+
+ '<div class="toolbar"><input class="search" id="listSearch" placeholder="Search..." onkeydown="if(event.key===\'Enter\')searchPage(\''+key+'\',this.value)"></div>'+
+ '<div class="card tablebox">'+tableHtml(key,d)+'</div>';
+}
+function tableHtml(key,d){
+ let cc=cfg[key];
+ if(!d.length)return '<div class="empty">No records yet.</div>';
+ return '<table class="table"><thead><tr>'+cc.cols.map(x=>'<th>'+x.replace(/_/g,' ')+'</th>').join('')+'<th>Actions</th></tr></thead><tbody>'+
+ d.map(r=>'<tr data-stage="'+esc(r.stage||r.status||'')+'">'+cc.cols.map(x=>'<td>'+fmt(x,r[x])+'</td>').join('')+'<td><div class="actions">'+
+ (key==='crm'?(r.phone?'<a class="btn green tiny" href="tel:'+esc(r.phone)+'">Call</a><a class="btn soft tiny" href="https://wa.me/'+esc(String(r.phone).replace(/[^0-9]/g,'').replace(/^0/,'92'))+'">WhatsApp</a>':'')+
+ '<button class="btn dark tiny" onclick="openEdit(\'contacts\','+r.id+')">Edit</button><button class="btn soft tiny" onclick="setClientStage('+r.id+',\'Follow-up\')">Pending</button><button class="btn green tiny" onclick="setClientStage('+r.id+',\'Closed\')">Done</button><button class="btn gold tiny" onclick="showMatches('+r.id+',\''+esc(r.name).replace(/'/g,"&#39;")+'\')">Match</button>'
+ :'<button class="btn dark tiny" onclick="openEdit(\''+cc.api+'\','+r.id+')">Edit</button>')+
+ '</div></td></tr>').join('')+'</tbody></table>';
+}
+function crmFilter(mode){
+ document.querySelectorAll('.table tbody tr').forEach(tr=>{
+   let s=(tr.dataset.stage||'').toLowerCase();
+   let show=mode==='all'||(mode==='pending'&&!['closed','lost'].includes(s))||(mode==='done'&&s==='closed')||(mode==='lost'&&s==='lost');
+   tr.style.display=show?'':'none';
+ });
+}
+async function setClientStage(id,stage){await api('/api/mobile/contacts/'+id,{method:'PATCH',body:JSON.stringify({stage})});render()}
 async function searchPage(key,q){let c=cfg[key],d=await api('/api/mobile/'+c.api+'?q='+encodeURIComponent(q));document.querySelector('.tablebox').innerHTML=d.length?'<table class="table"><tbody>'+d.map(r=>'<tr><td><b>'+esc(r[c.primary]||'')+'</b></td><td>'+esc(JSON.stringify(r).slice(0,180))+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">No matches</div>'}
 function openAdd(apiName){let fs=fields[apiName]||[];modal.innerHTML='<div class="modalbox"><div class="mh"><h2 style="margin:0">Add '+apiName.replace(/_/g,' ')+'</h2><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb"><div class="form">'+fs.map(f=>{let [k,l,t='text']=f;return '<div class="field '+(t==='textarea'?'full':'')+'"><label>'+l+'</label>'+(t==='textarea'?'<textarea id="f_'+k+'"></textarea>':'<input id="f_'+k+'" type="'+t+'">')+'</div>'}).join('')+'</div><div style="text-align:right;margin-top:14px"><button class="btn green" onclick="saveRec(\''+apiName+'\')">Save</button></div></div></div>';modal.classList.add('show')}
 function closeM(){modal.classList.remove('show')}
+async function openEdit(apiName,id){
+ let rows=await api('/api/mobile/'+apiName),row=rows.find(x=>Number(x.id)===Number(id));if(!row)return alert('Record not found');
+ let fs=fields[apiName]||[];
+ modal.innerHTML='<div class="modalbox"><div class="mh"><h2 style="margin:0">Edit '+apiName.replace(/_/g,' ')+'</h2><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb"><div class="form">'+
+ fs.map(f=>{let [k,l,t='text']=f,v=esc(row[k]??'');return '<div class="field '+(t==='textarea'?'full':'')+'"><label>'+l+'</label>'+(t==='textarea'?'<textarea id="e_'+k+'">'+v+'</textarea>':'<input id="e_'+k+'" type="'+t+'" value="'+v+'">')+'</div>'}).join('')+
+ '</div><div style="text-align:right;margin-top:14px"><button class="btn green" onclick="saveEdit(\''+apiName+'\','+id+')">Save Changes</button></div></div></div>';modal.classList.add('show')
+}
+async function saveEdit(apiName,id){
+ let o={};(fields[apiName]||[]).forEach(f=>{let e=document.getElementById('e_'+f[0]);if(e)o[f[0]]=e.value});
+ await api('/api/mobile/'+apiName+'/'+id,{method:'PATCH',body:JSON.stringify(o)});closeM();render()
+}
 async function saveRec(apiName){let o={};(fields[apiName]||[]).forEach(f=>{let e=document.getElementById('f_'+f[0]);if(e&&e.value!=='')o[f[0]]=e.value});await api('/api/mobile/'+apiName,{method:'POST',body:JSON.stringify(o)});closeM();render()}
-async function clientForm(){return '<div class="head"><div><h1>Client Self-Form</h1><div class="muted">Send a secure form to a client. They fill their own requirement.</div></div></div><div class="card section"><h3>Create new client form link</h3><p class="muted">The submitted requirement automatically enters CRM.</p><button class="btn green" onclick="makeClientForm()">Generate Link</button><div id="formResult" style="margin-top:14px"></div></div>'}
+async function financeCenter(){
+ let [s,rows]=await Promise.all([api('/api/mobile/finance-summary'),api('/api/mobile/ledger')]);
+ let maxExp=Math.max(1,...(s.expense_by_category||[]).map(x=>Number(x.amount||0)));
+ return '<div class="head"><div><h1>Office Finance Management</h1><div class="muted">Monthly income, expenses, profit and spending control</div></div><div class="grow"></div><button class="btn gold" onclick="openAdd(\'ledger\')">+ Add Transaction</button></div>'+
+ '<div class="finrow"><div class="card kpi"><small>Income</small><b>'+money(s.income)+'</b></div><div class="card kpi"><small>Expense</small><b>'+money(s.expense)+'</b></div><div class="card kpi"><small>Net Profit</small><b>'+money(s.profit)+'</b></div></div>'+
+ '<div class="grid cols2"><div class="card section"><h3>Expense Breakdown</h3><div class="miniList">'+((s.expense_by_category||[]).map(x=>'<div><div style="display:flex"><b class="grow">'+esc(x.category||'Other')+'</b><span>'+money(x.amount)+'</span></div><div class="bar" style="margin-top:6px"><i style="width:'+Math.max(4,Math.round(Number(x.amount||0)/maxExp*100))+'%"></i></div></div>').join('')||'<div class="empty">No expenses this month.</div>')+'</div></div>'+
+ '<div class="card section"><h3>Income Sources</h3><div class="miniList">'+((s.income_by_source||[]).map(x=>'<div class="miniItem"><b class="grow">'+esc(x.source||'Other')+'</b><span>'+money(x.amount)+'</span></div>').join('')||'<div class="empty">No income this month.</div>')+'</div></div></div>'+
+ '<div class="card tablebox" style="margin-top:14px">'+tableHtml('finance',rows)+'</div>';
+}
+
+async function clientForm(){return '<div class="head"><div><h1>Client Requirement Link</h1><div class="muted">Generate an official branded form link and send it to a client.</div></div></div><div class="grid cols2"><div class="card section"><h3>Create secure link</h3><p class="muted">Client fills name, WhatsApp, budget, location and requirement. Submission automatically enters CRM as a New lead.</p><button class="btn green" onclick="makeClientForm()">Generate Official Form Link</button><div id="formResult" style="margin-top:14px"></div></div><div class="card section"><h3>Why clients can trust it</h3><div class="miniList"><div class="miniItem">Official Deewaryn branding</div><div class="miniItem">Secure HTTPS page</div><div class="miniItem">No password, PIN or card details requested</div><div class="miniItem">Unique reference number on every form</div></div></div></div>'}
 async function makeClientForm(){let d=await api('/api/mobile/client-form',{method:'POST',body:'{}'});formResult.innerHTML='<input class="search" style="width:100%" value="'+esc(d.url)+'" readonly><div style="margin-top:9px"><button class="btn soft" onclick="navigator.clipboard.writeText(\''+esc(d.url)+'\')">Copy Link</button> <a class="btn green" target="_blank" href="'+esc(d.url)+'">Open Form</a></div>'}
 async function messages(){let [m,s]=await Promise.all([api('/api/mobile/messages'),api('/api/mobile/staff')]);return '<div class="head"><div><h1>Staff Messages</h1><div class="muted">Internal team communication</div></div></div><div class="grid cols2"><div class="card section"><h3>Send Message</h3><select id="mr" class="search" style="width:100%"><option value="ALL">All Staff</option>'+s.map(x=>'<option value="'+esc(x.username)+'">'+esc(x.name)+' — '+esc(x.role)+'</option>').join('')+'</select><textarea id="mm" class="search" style="width:100%;height:110px;margin-top:9px" placeholder="Message..."></textarea><button class="btn green" style="margin-top:8px" onclick="sendMsg()">Send</button></div><div class="card section"><h3>Recent Messages</h3><div class="msglist">'+(m.map(x=>'<div class="msg"><b>'+esc(x.sender)+'</b> → '+esc(x.recipient)+'<div>'+esc(x.message)+'</div><div class="muted">'+esc(x.created)+'</div></div>').join('')||'<div class="empty">No messages</div>')+'</div></div></div>'}
 async function sendMsg(){await api('/api/mobile/messages',{method:'POST',body:JSON.stringify({recipient:mr.value,message:mm.value})});render()}
 async function matching(){let cs=await api('/api/mobile/contacts');return '<div class="head"><div><h1>Smart Property Match</h1><div class="muted">Select a client to rank matching properties automatically</div></div></div><div class="card section">'+(cs.length?cs.map(x=>'<div style="padding:10px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px"><div class="grow"><b>'+esc(x.name)+'</b><div class="muted">'+esc(x.location)+' • '+money(x.budget)+'</div></div><button class="btn gold" onclick="showMatches('+x.id+',\''+esc(x.name).replace(/'/g,"&#39;")+'\')">Find Matches</button></div>').join(''):'<div class="empty">Add clients first.</div>')+'</div>'}
 async function showMatches(id,name){let d=await api('/api/mobile/matches/'+id);modal.innerHTML='<div class="modalbox"><div class="mh"><h2 style="margin:0">Matches for '+name+'</h2><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb">'+(d.length?d.map(x=>'<div class="card section" style="margin-bottom:10px"><div style="display:flex;gap:10px"><div class="grow"><b>'+esc(x.code||x.ptype)+'</b><div class="muted">'+esc(x.location)+' • '+esc(x.area)+' • '+money(x.price)+'</div><div class="muted">'+esc(x.match_reasons)+'</div></div><div class="score">'+x.match_score+'%</div></div></div>').join(''):'<div class="empty">No suitable properties found.</div>')+'</div></div>';modal.classList.add('show')}
-async function render(){if(!token||!user){login();return}app.innerHTML=shell('<div class="card section">Loading...</div>');try{let body;if(view==='dashboard')body=await dashboard();else if(view==='clientform')body=await clientForm();else if(view==='messages')body=await messages();else if(view==='matching')body=await matching();else body=await listPage(view);app.innerHTML=shell(body)}catch(e){app.innerHTML=shell('<div class="card section"><h3>Error</h3><p>'+esc(e.message)+'</p></div>')}}
+async function render(){if(!token||!user){login();return}app.innerHTML=shell('<div class="card section">Loading...</div>');try{let body;if(view==='dashboard')body=await dashboard();else if(view==='clientform')body=await clientForm();else if(view==='messages')body=await messages();else if(view==='matching')body=await matching();else if(view==='finance')body=await financeCenter();else body=await listPage(view);app.innerHTML=shell(body)}catch(e){app.innerHTML=shell('<div class="card section"><h3>Error</h3><p>'+esc(e.message)+'</p></div>')}}
 render();
 </script></body></html>"""
 
