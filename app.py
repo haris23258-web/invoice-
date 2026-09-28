@@ -464,8 +464,17 @@ def mobile():
 *{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--ink)}
 button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gradient(135deg,#08271a,#0e3a28);color:#fff;display:flex;align-items:center;padding:0 22px;position:sticky;top:0;z-index:20}
 .brand{font-size:25px;font-weight:900}.brand span{color:var(--gold)}.sub{font-size:11px;opacity:.65}.top .grow{flex:1}.user{font-size:12px;opacity:.8}
-.shell{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 72px)}.side{background:#fff;border-right:1px solid var(--line);padding:16px;position:sticky;top:72px;height:calc(100vh - 72px);overflow:auto}
-.group{font-size:10px;color:#97a39d;text-transform:uppercase;font-weight:900;letter-spacing:1px;margin:16px 10px 7px}.nav{width:100%;border:0;background:transparent;padding:12px;border-radius:11px;text-align:left;font-weight:800;color:#53675c;cursor:pointer}.nav:hover,.nav.on{background:#eaf6ef;color:var(--g2)}
+.shell{display:grid;grid-template-columns:285px 1fr;min-height:calc(100vh - 72px)}
+.side{background:linear-gradient(180deg,#f9fbfa 0%,#eef5f1 100%);border-right:1px solid #dce8e1;padding:16px 14px 24px;position:sticky;top:72px;height:calc(100vh - 72px);overflow:auto;box-shadow:8px 0 28px rgba(17,37,29,.04)}
+.sideBrand{background:linear-gradient(135deg,#08271a,#0d5136);color:#fff;border-radius:18px;padding:16px 15px;margin-bottom:16px;box-shadow:0 12px 28px rgba(8,39,26,.18)}
+.sideBrand .sbLogo{font-size:20px;font-weight:900}.sideBrand .sbLogo span{color:var(--gold)}.sideBrand .sbSub{font-size:11px;color:#d4e5dc;margin-top:4px}
+.group{font-size:10px;color:#8a9a92;text-transform:uppercase;font-weight:900;letter-spacing:1.2px;margin:17px 10px 8px}
+.nav{width:100%;border:1px solid #e3ece7;background:#fff;padding:10px 11px;border-radius:14px;text-align:left;font-weight:800;color:#365247;cursor:pointer;margin-bottom:8px;display:flex;align-items:center;gap:10px;transition:.22s ease;box-shadow:0 3px 10px rgba(17,37,29,.03)}
+.nav:hover{transform:translateX(4px);border-color:#bdd6c7;box-shadow:0 10px 22px rgba(17,37,29,.07);background:#fbfdfc}
+.nav.on{background:linear-gradient(135deg,#0d5c3f,#159b62);color:#fff;border-color:#159b62;box-shadow:0 12px 24px rgba(21,155,98,.20)}
+.navIcon{width:36px;height:36px;border-radius:11px;background:#edf6f1;color:#0f7c4d;display:grid;place-items:center;font-size:16px;flex:0 0 36px}
+.nav.on .navIcon{background:rgba(255,255,255,.16);color:#fff}
+.navText{min-width:0;flex:1}.navTitle{font-size:14px;line-height:1.2}.navHint{font-size:10px;color:#8b9a93;margin-top:3px;font-weight:700}.nav.on .navHint{color:#d9f0e4}
 .main{padding:22px;min-width:0}.head{display:flex;gap:12px;align-items:center;margin-bottom:16px}.head h1{margin:0;font-size:28px}.muted{color:var(--muted);font-size:12px}.grow{flex:1}
 .btn{border:0;border-radius:10px;padding:10px 13px;font-weight:800;cursor:pointer}.green{background:var(--g);color:#fff}.soft{background:#eaf6ef;color:var(--g2)}.gold{background:var(--gold);color:#171717}.dark{background:#173d2c;color:#fff}
 .grid{display:grid;gap:13px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:0 10px 28px rgba(17,37,29,.05)}
@@ -489,7 +498,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .categoryGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.categoryCard{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff,#fbfdfc);border:1px solid #dfe8e3;border-radius:20px;padding:18px;min-height:145px;cursor:pointer;transition:.22s;animation:rise .45s ease both}.categoryCard:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--g),var(--gold))}.categoryCard:hover{transform:translateY(-5px) scale(1.01);border-color:#b8d8c7;box-shadow:0 20px 40px rgba(17,37,29,.11)}.catIcon{width:40px;height:40px;border-radius:12px;background:#eaf6ef;color:var(--g2);display:grid;place-items:center;font-weight:900;margin-bottom:12px}.categoryCard b{font-size:16px;display:block}.categoryCard small{display:block;color:var(--muted);margin-top:5px;line-height:1.45}.categoryCard strong{display:block;font-size:23px;margin-top:12px;color:var(--g2)}
 .kpi{animation:rise .45s ease both}.kpi:hover{animation:pulseGlow 1.6s ease infinite}.aboutBox{background:linear-gradient(135deg,#fff,#f4faf6);border:1px solid #dce9e1;border-radius:20px;padding:20px}.aboutLogo{font-size:26px;font-weight:900}.aboutLogo span{color:var(--g)}.aboutTags{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.aboutTag{background:#edf6f1;color:#345947;padding:7px 9px;border-radius:999px;font-size:11px;font-weight:800}
 @media(max-width:1100px){.categoryGrid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:1000px){.shell{grid-template-columns:1fr}.side{position:fixed;left:0;right:0;bottom:0;top:auto;height:68px;display:flex;overflow-x:auto;z-index:30;padding:7px}.group{display:none}.nav{min-width:120px;text-align:center}.main{padding-bottom:85px}.kpis{grid-template-columns:repeat(2,1fr)}.cols2{grid-template-columns:1fr}}
+@media(max-width:1000px){.shell{grid-template-columns:1fr}.side{position:fixed;left:0;right:0;bottom:0;top:auto;height:78px;display:flex;overflow-x:auto;z-index:30;padding:7px;background:#fff;border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(17,37,29,.08)}.sideBrand,.group{display:none}.nav{min-width:112px;height:62px;margin:0 5px;padding:7px 9px;justify-content:center;flex-direction:column;gap:3px;border-radius:12px}.navIcon{width:26px;height:26px;flex:0 0 26px;font-size:13px}.navTitle{font-size:10px;text-align:center}.navHint{display:none}.main{padding-bottom:95px}.kpis{grid-template-columns:repeat(2,1fr)}.cols2{grid-template-columns:1fr}}
 @media(max-width:650px){.main{padding:14px}.quick{grid-template-columns:repeat(2,1fr)}.form{grid-template-columns:1fr}.full{grid-column:auto}.head h1{font-size:22px}}
 </style></head><body><div id="app"></div><div id="modal" class="modal"></div>
 <script>
@@ -501,6 +510,24 @@ async function api(p,o={}){let h={'Content-Type':'application/json',...(o.header
 function login(){app.innerHTML='<div class="login"><div class="loginbox"><h1 style="margin:0">Dee<span style="color:var(--g)">waryn</span></h1><p class="muted">Enterprise Staff Cloud</p><input id="u" value="admin" placeholder="Username"><input id="p" type="password" placeholder="Password"><button class="btn green" style="width:100%;margin-top:8px" onclick="doLogin()">Secure Sign In</button><div id="lm" class="muted" style="margin-top:9px"></div></div></div>'}
 async function doLogin(){try{let d=await api('/api/mobile/login',{method:'POST',body:JSON.stringify({username:u.value,password:p.value})});token=d.token;user=d.user;localStorage.setItem('dw_token',token);localStorage.setItem('dw_user',JSON.stringify(user));view='dashboard';render()}catch(e){lm.textContent=e.message}}
 function logout(){localStorage.clear();token='';user=null;login()}
+const navMeta={
+ dashboard:['⌂','Overview & KPIs'],
+ about:['i','Company profile'],
+ crm:['C','Leads & follow-ups'],
+ deals:['D','Pipeline & closings'],
+ clientform:['F','Send requirement link'],
+ properties:['P','Inventory & listings'],
+ matching:['M','Auto client matching'],
+ staff:['S','Team performance'],
+ userids:['ID','Login accounts'],
+ messages:['✉','Internal messages'],
+ activity:['A','Audit trail'],
+ tasks:['T','Team tasks'],
+ finance:['₨','Income & expenses'],
+ rent:['R','Tenants & dues'],
+ projects:['PJ','Construction work'],
+ maintenance:['MT','Service jobs']
+};
 const navGroups=[
  ['MAIN',[['dashboard','Dashboard'],['about','About Company']]],
  ['SALES & CLIENTS',[['crm','CRM / Clients'],['deals','Deals'],['clientform','Client Form']]],
@@ -511,7 +538,10 @@ const navGroups=[
 ];
 function shell(body){
  let admin=['administrator','admin'].includes(String(user?.role||'').toLowerCase());
- return '<div class="top"><div><div class="brand">Dee<span>waryn</span></div><div class="sub">Enterprise Command Center</div></div><div class="grow"></div><div class="user">'+esc(user?.name||'')+' • '+esc(user?.role||'')+'</div><button class="btn soft" style="margin-left:12px" onclick="logout()">Logout</button></div><div class="shell"><aside class="side">'+navGroups.map(g=>'<div class="group">'+g[0]+'</div>'+g[1].filter(n=>admin||n[0]!=='userids').map(n=>'<button class="nav '+(view===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')">'+n[1]+'</button>').join('')).join('')+'</aside><main class="main">'+body+'</main></div>'
+ return '<div class="top"><div><div class="brand">Dee<span>waryn</span></div><div class="sub">Enterprise Command Center</div></div><div class="grow"></div><div class="user">'+esc(user?.name||'')+' • '+esc(user?.role||'')+'</div><button class="btn soft" style="margin-left:12px" onclick="logout()">Logout</button></div>'+
+ '<div class="shell"><aside class="side"><div class="sideBrand"><div class="sbLogo">Dee<span>waryn</span></div><div class="sbSub">Real Estate Operations</div></div>'+
+ navGroups.map(g=>'<div class="group">'+g[0]+'</div>'+g[1].filter(n=>admin||n[0]!=='userids').map(n=>{let m=navMeta[n[0]]||['•',''];return '<button class="nav '+(view===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')"><div class="navIcon">'+m[0]+'</div><div class="navText"><div class="navTitle">'+n[1]+'</div><div class="navHint">'+m[1]+'</div></div></button>'}).join('')).join('')+
+ '</aside><main class="main">'+body+'</main></div>'
 }
 function go(v){view=v;render()}
 async function dashboard(){
