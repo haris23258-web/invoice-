@@ -214,58 +214,101 @@ def create_client_form():
     token=secrets.token_urlsafe(18)
     execute("INSERT INTO client_forms(token,created_by,created,used) VALUES(%s,%s,%s,0)",
             (token,request.user["username"],datetime.now().strftime("%Y-%m-%d %H:%M")))
-    return jsonify(ok=True,token=token,url=request.host_url.rstrip("/")+"/client-form/"+token)
+    return jsonify(ok=True,token=token,url=request.host_url.rstrip("/")+"/f/"+token)
 
+@app.route("/f/<token>",methods=["GET","POST"])
 @app.route("/client-form/<token>",methods=["GET","POST"])
 def public_client_form(token):
     row=query("SELECT * FROM client_forms WHERE token=%s",(token,),True)
     if not row:return "Invalid or expired form link",404
     if request.method=="POST":
         f=request.form
+        budget_raw="".join(ch for ch in (f.get("budget") or "") if ch.isdigit())
+        budget=float(budget_raw or 0)
+        purpose=(f.get("ctype") or "Buyer").strip()
+        prop_type=(f.get("property_type") or "").strip()
+        portion=(f.get("portion") or "").strip()
+        area=(f.get("area") or "").strip()
+        beds=(f.get("beds") or "").strip()
+        location=(f.get("location") or "").strip()
+        extra=(f.get("extra") or "").strip()
+        parts=[]
+        if prop_type: parts.append(prop_type)
+        if portion: parts.append(portion)
+        if area: parts.append(area)
+        if beds: parts.append(beds+" Bed")
+        if extra: parts.append(extra)
+        requirement=" | ".join(parts)
         execute("""INSERT INTO contacts(name,phone,email,ctype,budget,location,requirement,source,stage,assigned,followup,notes,created)
                    VALUES(%s,%s,%s,%s,%s,%s,%s,'Client Self Form','New','','','',%s)""",
-                (f.get("name",""),f.get("phone",""),f.get("email",""),f.get("ctype","Buyer"),
-                 float(f.get("budget") or 0),f.get("location",""),f.get("requirement",""),
+                (f.get("name",""),f.get("phone",""),f.get("email",""),purpose,budget,location,requirement,
                  datetime.now().strftime("%Y-%m-%d %H:%M")))
         execute("UPDATE client_forms SET used=1 WHERE token=%s",(token,))
         return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
-        <title>Requirement Received | Deewaryn</title></head>
+        <meta charset="utf-8"><title>Requirement Received | Deewaryn</title></head>
         <body style="margin:0;font-family:Arial;background:#0b2b1e;padding:24px">
-        <div style="max-width:620px;margin:50px auto;background:white;padding:34px;border-radius:22px">
+        <div style="max-width:560px;margin:55px auto;background:white;padding:32px;border-radius:22px;text-align:center">
         <div style="font-weight:900;font-size:30px;color:#10251c">Dee<span style="color:#159b62">waryn</span></div>
-        <h2 style="margin-top:28px;color:#159b62">Requirement received successfully</h2>
-        <p style="color:#65766d;line-height:1.6">Thank you. Your property requirement has been sent directly to the Deewaryn team. A team member can now review suitable options and contact you.</p>
-        <p style="font-size:12px;color:#829087">Official website: deewaryn.com</p></div></body></html>"""
+        <h2 style="margin-top:24px;color:#159b62">Requirement received</h2>
+        <p style="color:#65766d;line-height:1.6">Thank you. Our team will review suitable properties and contact you shortly.</p>
+        <p style="font-size:12px;color:#829087">deewaryn.com</p></div></body></html>"""
     ref=token[-6:].upper()
+    locations=[
+      "Bahria Town Phase 1","Bahria Town Phase 2","Bahria Town Phase 3","Bahria Town Phase 4",
+      "Bahria Town Phase 5","Bahria Town Phase 6","Bahria Town Phase 7","Bahria Town Phase 8",
+      "Bahria Safari Villas","DHA Phase 1 Islamabad","DHA Phase 2 Islamabad","DHA Phase 3 Islamabad",
+      "DHA Phase 4 Islamabad","Askari 14","Askari 7","Askari 10","Chaklala Scheme 1","Chaklala Scheme 2",
+      "Chaklala Scheme 3","Gulraiz Housing Scheme","Gulraiz 1","Gulraiz 2","Gulraiz 3","Media Town",
+      "PWD Housing Scheme","Police Foundation","Soan Garden","Pakistan Town Phase 1","Pakistan Town Phase 2",
+      "CBR Town Phase 1","CBR Town Phase 2","Jinnah Garden","Naval Anchorage","Ghauri Town Phase 4A",
+      "Ghauri Town Phase 4B","Ghauri Town Phase 5","Ghauri Town Phase 7","Airport Housing Society",
+      "Judicial Colony Rawalpindi","Adiala Road","Gulshan Abad","Caltex Road","Range Road","Misrial Road",
+      "Westridge 1","Westridge 2","Westridge 3","Saddar Rawalpindi","Satellite Town Rawalpindi",
+      "6th Road Rawalpindi","Shamsabad","Sadiqabad Rawalpindi","Commercial Market","Chandni Chowk",
+      "Murree Road Rawalpindi","Khanna Pul","Korang Town","Taramri","Lehtrar Road","Park Road",
+      "Bani Gala","Bhara Kahu","G-5 Islamabad","G-6 Islamabad","G-7 Islamabad","G-8 Islamabad",
+      "G-9 Islamabad","G-10 Islamabad","G-11 Islamabad","G-12 Islamabad","G-13 Islamabad","G-14 Islamabad",
+      "G-15 Islamabad","G-16 Islamabad","F-5 Islamabad","F-6 Islamabad","F-7 Islamabad","F-8 Islamabad",
+      "F-10 Islamabad","F-11 Islamabad","F-12 Islamabad","F-13 Islamabad","F-14 Islamabad","F-15 Islamabad",
+      "E-7 Islamabad","E-11 Islamabad","E-12 Islamabad","I-8 Islamabad","I-9 Islamabad","I-10 Islamabad",
+      "I-11 Islamabad","I-12 Islamabad","H-13 Islamabad","H-15 Islamabad","I-14 Islamabad","I-15 Islamabad",
+      "I-16 Islamabad","B-17 Islamabad","B-18 Islamabad","C-15 Islamabad","C-16 Islamabad","D-12 Islamabad",
+      "D-13 Islamabad","D-17 Islamabad","Park View City Islamabad","Gulberg Greens","Gulberg Residencia",
+      "Top City-1","Mumtaz City","Capital Smart City","Blue World City","Faisal Town","Faisal Hills",
+      "MPCHS Multi Gardens B-17","E-16 Islamabad","E-17 Islamabad"
+    ]
+    options="".join(f'<option value="{x}"></option>' for x in locations)
     return f"""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta charset="utf-8"><title>Official Property Requirement Form | Deewaryn</title>
+    <meta charset="utf-8"><title>Property Requirement | Deewaryn</title>
     <style>
-    *{{box-sizing:border-box}}body{{font-family:Arial;margin:0;background:linear-gradient(135deg,#08271a,#145438);color:#10251c;padding:18px}}
-    .wrap{{max-width:720px;margin:22px auto}}.trust{{color:#d8e7df;text-align:center;font-size:13px;margin-bottom:12px}}
-    .box{{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.25)}}
-    .hero{{background:#f7faf8;padding:26px 28px;border-bottom:1px solid #e3ebe6}}.brand{{font-size:32px;font-weight:900}}.brand span{{color:#159b62}}
-    .badge{{display:inline-block;background:#e8f6ef;color:#0f7c4d;border-radius:999px;padding:7px 10px;font-size:12px;font-weight:800;margin-top:10px}}
-    .body{{padding:26px 28px}}.grid{{display:grid;grid-template-columns:1fr 1fr;gap:14px}}
-    label{{display:block;font-size:12px;font-weight:800;color:#607168;margin-bottom:6px}}
-    input,select,textarea{{width:100%;padding:12px;border:1px solid #dfe7e3;border-radius:10px;font-size:15px}}textarea{{min-height:120px;resize:vertical}}
-    .full{{grid-column:1/-1}}button{{width:100%;padding:14px;border:0;border-radius:11px;background:#159b62;color:#fff;font-weight:900;font-size:16px;margin-top:18px}}
-    .privacy{{margin-top:16px;padding:13px;background:#f3f8f5;border-radius:10px;color:#66776f;font-size:12px;line-height:1.5}}
-    .foot{{text-align:center;color:#dce9e2;font-size:12px;margin-top:14px}}@media(max-width:620px){{.grid{{grid-template-columns:1fr}}.full{{grid-column:auto}}}}
-    </style></head><body><div class="wrap"><div class="trust">Secure HTTPS form • Reference {ref}</div><div class="box">
-    <div class="hero"><div class="brand">Dee<span>waryn</span></div><div style="margin-top:5px;color:#607168">Real Estate • Rawalpindi & Islamabad</div>
-    <div class="badge">Official Property Requirement Form</div></div>
-    <div class="body"><h2 style="margin-top:0">Tell us what you need</h2><p style="color:#6c7c74">Fill this short form so our team can shortlist suitable properties before contacting you.</p>
-    <form method="post"><div class="grid">
-    <div><label>Full name *</label><input name="name" required placeholder="Your name"></div>
-    <div><label>Phone / WhatsApp *</label><input name="phone" required placeholder="03xx xxxxxxx"></div>
-    <div><label>Email</label><input name="email" type="email" placeholder="Optional"></div>
-    <div><label>I am looking to</label><select name="ctype"><option>Buyer</option><option>Tenant</option><option>Investor</option></select></div>
-    <div><label>Budget (PKR)</label><input name="budget" type="number" placeholder="e.g. 35000000"></div>
-    <div><label>Preferred location</label><input name="location" placeholder="e.g. Bahria Town Phase 4"></div>
-    <div class="full"><label>Property requirement</label><textarea name="requirement" placeholder="Example: 10 marla full house, 5 bedrooms, parking, near main road"></textarea></div>
-    </div><button type="submit">Send Requirement to Deewaryn</button></form>
-    <div class="privacy"><b>Your privacy matters.</b> The information you submit here is sent to the Deewaryn team for property matching and follow-up. We do not ask for passwords, PINs, or card details on this form.</div>
-    </div></div><div class="foot">deewaryn.com • Reference {ref}</div></div></body></html>"""
+    *{{box-sizing:border-box}}body{{font-family:Arial;margin:0;background:#0b2b1e;color:#10251c;padding:14px}}
+    .wrap{{max-width:700px;margin:16px auto}}.box{{background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 25px 70px rgba(0,0,0,.22)}}
+    .hero{{padding:22px 24px;background:#f7faf8;border-bottom:1px solid #e3ebe6}}.brand{{font-size:30px;font-weight:900}}.brand span{{color:#159b62}}
+    .badge{{display:inline-block;background:#e9f6ef;color:#0f7c4d;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;margin-top:8px}}
+    .body{{padding:22px 24px}}.grid{{display:grid;grid-template-columns:1fr 1fr;gap:12px}}label{{display:block;font-size:12px;font-weight:800;color:#617168;margin-bottom:5px}}
+    input,select,textarea{{width:100%;padding:11px 12px;border:1px solid #dce6e0;border-radius:10px;font-size:15px;background:#fff}}textarea{{min-height:92px;resize:vertical}}
+    .full{{grid-column:1/-1}}button{{width:100%;padding:14px;border:0;border-radius:11px;background:#159b62;color:white;font-weight:900;font-size:16px;margin-top:15px}}
+    .note{{margin-top:13px;font-size:11px;color:#718078;line-height:1.5;background:#f4f8f6;padding:11px;border-radius:10px}}
+    .foot{{text-align:center;color:#d9e6df;font-size:11px;margin-top:12px}}@media(max-width:620px){{.grid{{grid-template-columns:1fr}}.full{{grid-column:auto}}}}
+    </style></head><body><div class="wrap"><div class="box">
+    <div class="hero"><div class="brand">Dee<span>waryn</span></div><div style="color:#66776f;margin-top:4px">Rawalpindi & Islamabad Real Estate</div><div class="badge">Official Requirement Form • {ref}</div></div>
+    <div class="body"><h2 style="margin:0 0 4px">Find your property</h2><p style="margin:0 0 18px;color:#718078">Just select a few options. It takes less than a minute.</p>
+    <form method="post" onsubmit="cleanBudget()"><div class="grid">
+      <div><label>Name *</label><input name="name" required placeholder="Your name"></div>
+      <div><label>Phone / WhatsApp *</label><input name="phone" required inputmode="numeric" pattern="[0-9+ ]*" placeholder="03xx xxxxxxx"></div>
+      <div><label>Looking for</label><select name="ctype"><option>Buyer</option><option>Tenant</option><option>Investor</option></select></div>
+      <div><label>Budget (numbers only)</label><input id="budget" name="budget" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="35000000" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+      <div class="full"><label>Location</label><input name="location" list="locations" autocomplete="off" placeholder="Start typing e.g. Scheme 3, Bahria, G-13"><datalist id="locations">{options}</datalist></div>
+      <div><label>Property type</label><select name="property_type"><option>House</option><option>Apartment</option><option>Plot</option><option>Commercial</option></select></div>
+      <div><label>Portion</label><select name="portion"><option>Full House</option><option>Ground Portion</option><option>Upper Portion</option><option>Lower Portion</option><option>Not sure</option></select></div>
+      <div><label>Area / Marla</label><select name="area"><option>3 Marla</option><option>4 Marla</option><option>5 Marla</option><option>6 Marla</option><option>7 Marla</option><option>8 Marla</option><option>10 Marla</option><option>12 Marla</option><option>1 Kanal</option><option>2 Kanal</option><option>Other</option></select></div>
+      <div><label>Bedrooms</label><select name="beds"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7+</option></select></div>
+      <div class="full"><label>Extra requirement (optional)</label><textarea name="extra" placeholder="Corner, park facing, basement, double unit, parking, new house, etc."></textarea></div>
+    </div><button type="submit">Send My Requirement</button></form>
+    <div class="note"><b>Privacy:</b> This form only collects your property requirement and contact details for Deewaryn. We never ask for passwords, PINs, OTPs or card details.</div>
+    </div></div><div class="foot">deewaryn.com • Secure HTTPS form</div></div>
+    <script>function cleanBudget(){{var b=document.getElementById('budget');b.value=b.value.replace(/[^0-9]/g,'');}}</script>
+    </body></html>"""
 
 @app.get("/api/mobile/matches/<int:contact_id>")
 @auth
