@@ -179,6 +179,21 @@ def table_update(table,row_id):
              datetime.now().strftime("%Y-%m-%d %H:%M")))
     return jsonify(ok=True,id=row_id,updated_by=actor)
 
+@app.delete("/api/mobile/<table>/<int:row_id>")
+@auth
+def table_delete(table,row_id):
+    if table not in TABLES:return jsonify(error="Unknown module"),404
+    if not admin_only():return jsonify(error="Only administrator can delete records"),403
+    row=query(f"SELECT * FROM {table} WHERE id=%s",(row_id,),True)
+    if not row:return jsonify(error="Record not found"),404
+    actor=request.user["name"] or request.user["username"]
+    execute(f"DELETE FROM {table} WHERE id=%s",(row_id,))
+    execute("""INSERT INTO audit_log(user_id,username,user_name,action,module,record_id,details,created)
+               VALUES(%s,%s,%s,'DELETE',%s,%s,%s,%s)""",
+            (request.user["id"],request.user["username"],actor,table,row_id,
+             str(dict(row))[:800],datetime.now().strftime("%Y-%m-%d %H:%M")))
+    return jsonify(ok=True,id=row_id)
+
 @app.get("/api/mobile/finance-summary")
 @auth
 def finance_summary():
@@ -243,6 +258,23 @@ def update_user_account(user_id):
     vals.append(user_id)
     execute("UPDATE mobile_users SET "+",".join(allowed)+" WHERE id=%s",tuple(vals))
     execute("DELETE FROM mobile_tokens WHERE user_id=%s",(user_id,))
+    return jsonify(ok=True)
+
+@app.delete("/api/mobile/user-accounts/<int:user_id>")
+@auth
+def delete_user_account(user_id):
+    if not admin_only():return jsonify(error="Administrator access required"),403
+    target=query("SELECT * FROM mobile_users WHERE id=%s",(user_id,),True)
+    if not target:return jsonify(error="User not found"),404
+    if target["username"]=="admin":return jsonify(error="Main admin account cannot be deleted"),400
+    execute("DELETE FROM mobile_tokens WHERE user_id=%s",(user_id,))
+    execute("DELETE FROM mobile_users WHERE id=%s",(user_id,))
+    actor=request.user["name"] or request.user["username"]
+    execute("""INSERT INTO audit_log(user_id,username,user_name,action,module,record_id,details,created)
+               VALUES(%s,%s,%s,'DELETE','mobile_users',%s,%s,%s)""",
+            (request.user["id"],request.user["username"],actor,user_id,
+             "Deleted staff login: "+str(target.get("name") or target.get("username")),
+             datetime.now().strftime("%Y-%m-%d %H:%M")))
     return jsonify(ok=True)
 
 @app.get("/api/mobile/activity")
@@ -560,11 +592,13 @@ async function listPage(key){
 function tableHtml(key,d){
  let cc=cfg[key];
  if(!d.length)return '<div class="empty">No records yet.</div>';
+ let isAdmin=['administrator','admin'].includes(String(user?.role||'').toLowerCase());
  return '<table class="table"><thead><tr>'+cc.cols.map(x=>'<th>'+x.replace(/_/g,' ')+'</th>').join('')+'<th>Entered By</th><th>Updated By</th><th>Actions</th></tr></thead><tbody>'+
  d.map(r=>'<tr data-stage="'+esc(r.stage||r.status||'')+'">'+cc.cols.map(x=>'<td>'+fmt(x,r[x])+'</td>').join('')+'<td><b>'+esc(r.created_by||'Legacy')+'</b></td><td>'+esc(r.updated_by||'—')+'</td><td><div class="actions">'+
  (key==='crm'?(r.phone?'<a class="btn green tiny" href="tel:'+esc(r.phone)+'">Call</a><a class="btn soft tiny" href="https://wa.me/'+esc(String(r.phone).replace(/[^0-9]/g,'').replace(/^0/,'92'))+'">WhatsApp</a>':'')+
  '<button class="btn dark tiny" onclick="openEdit(\'contacts\','+r.id+')">Edit</button><button class="btn soft tiny" onclick="setClientStage('+r.id+',\'Follow-up\')">Pending</button><button class="btn green tiny" onclick="setClientStage('+r.id+',\'Closed\')">Done</button><button class="btn gold tiny" onclick="showMatches('+r.id+',\''+esc(r.name).replace(/'/g,"&#39;")+'\')">Match</button>'
  :'<button class="btn dark tiny" onclick="openEdit(\''+cc.api+'\','+r.id+')">Edit</button>')+
+ (isAdmin?'<button class="btn tiny" style="background:#fff0ee;color:#b42318" onclick="deleteRec(\''+cc.api+'\','+r.id+',\''+esc(String(r[cc.primary]||('Record #'+r.id))).replace(/'/g,"&#39;")+'\')">Delete</button>':'')+
  '</div></td></tr>').join('')+'</tbody></table>';
 }
 function crmFilter(mode){
@@ -575,6 +609,11 @@ function crmFilter(mode){
  });
 }
 async function setClientStage(id,stage){await api('/api/mobile/contacts/'+id,{method:'PATCH',body:JSON.stringify({stage})});render()}
+async function deleteRec(apiName,id,label){
+ if(!confirm('Delete '+label+' permanently?\n\nThis cannot be undone.'))return;
+ try{await api('/api/mobile/'+apiName+'/'+id,{method:'DELETE'});render()}
+ catch(e){alert(e.message)}
+}
 async function searchPage(key,q){let c=cfg[key],d=await api('/api/mobile/'+c.api+'?q='+encodeURIComponent(q));document.querySelector('.tablebox').innerHTML=d.length?'<table class="table"><tbody>'+d.map(r=>'<tr><td><b>'+esc(r[c.primary]||'')+'</b></td><td>'+esc(JSON.stringify(r).slice(0,180))+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">No matches</div>'}
 function openAdd(apiName){
  let fs=fields[apiName]||[];
@@ -599,8 +638,11 @@ async function saveEdit(apiName,id){
 async function saveRec(apiName){let o={};(fields[apiName]||[]).forEach(f=>{let e=document.getElementById('f_'+f[0]);if(e&&e.value!=='')o[f[0]]=e.value});await api('/api/mobile/'+apiName,{method:'POST',body:JSON.stringify(o)});closeM();render()}
 async function userIdsPage(){
  let rows=await api('/api/mobile/user-accounts');
- return '<div class="head"><div><h1>Staff Login IDs</h1><div class="muted">Create a separate username and password for every agent or staff member.</div></div><div class="grow"></div><button class="btn gold" onclick="openUserCreate()">+ Create Staff ID</button></div>'+
- '<div class="card tablebox">'+(rows.length?'<table class="table"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody>'+rows.map(x=>'<tr><td><b>'+esc(x.name)+'</b></td><td>'+esc(x.username)+'</td><td>'+esc(x.role)+'</td><td><span class="chip">'+(Number(x.active)?'Active':'Disabled')+'</span></td><td>'+esc(x.created||'')+'</td><td><div class="actions"><button class="btn soft tiny" onclick="resetUser('+x.id+',\''+esc(x.name).replace(/'/g,"&#39;")+'\')">Password</button>'+(x.username!=='admin'?'<button class="btn '+(Number(x.active)?'dark':'green')+' tiny" onclick="toggleUser('+x.id+','+(Number(x.active)?0:1)+')">'+(Number(x.active)?'Disable':'Enable')+'</button>':'')+'</div></td></tr>').join('')+'</tbody></table>':'<div class="empty">No staff IDs.</div>')+'</div>'
+ return '<div class="head"><div><h1>Staff Login IDs</h1><div class="muted">Create and control a separate login for every staff member.</div></div><div class="grow"></div><button class="btn gold" onclick="openUserCreate()">+ Create Staff ID</button></div>'+
+ '<div class="card tablebox">'+(rows.length?'<table class="table"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody>'+
+ rows.map(x=>'<tr><td><b>'+esc(x.name)+'</b></td><td>'+esc(x.username)+'</td><td>'+esc(x.role)+'</td><td><span class="chip">'+(Number(x.active)?'Active':'Disabled')+'</span></td><td>'+esc(x.created||'')+'</td><td><div class="actions"><button class="btn soft tiny" onclick="resetUser('+x.id+',\''+esc(x.name).replace(/'/g,"&#39;")+'\')">Password</button>'+
+ (x.username!=='admin'?'<button class="btn '+(Number(x.active)?'dark':'green')+' tiny" onclick="toggleUser('+x.id+','+(Number(x.active)?0:1)+')">'+(Number(x.active)?'Disable':'Enable')+'</button><button class="btn tiny" style="background:#fff0ee;color:#b42318" onclick="deleteUser('+x.id+',\''+esc(x.name).replace(/'/g,"&#39;")+'\')">Delete</button>':'')+
+ '</div></td></tr>').join('')+'</tbody></table>':'<div class="empty">No staff IDs.</div>')+'</div>'
 }
 function openUserCreate(){
  modal.innerHTML='<div class="modalbox"><div class="mh"><h2 style="margin:0">Create Staff Login ID</h2><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb"><div class="form">'+
@@ -614,6 +656,11 @@ async function createUser(){
  try{await api('/api/mobile/user-accounts',{method:'POST',body:JSON.stringify({name:un.value,username:uu.value,role:ur.value,password:up.value})});closeM();render()}catch(e){alert(e.message)}
 }
 async function toggleUser(id,active){if(!confirm(active?'Enable this staff login?':'Disable this staff login?'))return;await api('/api/mobile/user-accounts/'+id,{method:'PATCH',body:JSON.stringify({active})});render()}
+async function deleteUser(id,name){
+ if(!confirm('Delete staff login for '+name+' permanently?\n\nPrevious entries will stay in the system with their name.'))return;
+ try{await api('/api/mobile/user-accounts/'+id,{method:'DELETE'});render()}
+ catch(e){alert(e.message)}
+}
 async function resetUser(id,name){let p=prompt('New password for '+name+' (minimum 6 characters):');if(!p)return;try{await api('/api/mobile/user-accounts/'+id,{method:'PATCH',body:JSON.stringify({password:p})});alert('Password changed. Staff must login again.')}catch(e){alert(e.message)}}
 async function activityPage(){
  let rows=await api('/api/mobile/activity');
