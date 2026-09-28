@@ -46,6 +46,12 @@ def init_db():
     if not DATABASE_URL:return
     c=db();q=c.cursor()
     for s in SCHEMA:q.execute(s)
+    for t in TABLES:
+        q.execute(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS created_by TEXT")
+        q.execute(f"ALTER TABLE {t} ADD COLUMN IF NOT EXISTS updated_by TEXT")
+    q.execute("""CREATE TABLE IF NOT EXISTS audit_log(
+        id BIGSERIAL PRIMARY KEY,user_id BIGINT,username TEXT,user_name TEXT,action TEXT,module TEXT,
+        record_id BIGINT,details TEXT,created TEXT)""")
     q.execute("SELECT id FROM mobile_users LIMIT 1")
     if not q.fetchone():
         q.execute("INSERT INTO mobile_users(username,password_hash,name,role,active,created) VALUES(%s,%s,%s,%s,1,%s)",
@@ -139,9 +145,14 @@ def table_api(table):
             try:v=float(v) if str(v).strip() else 0
             except:v=0
         vals.append(v)
-    sql=f"INSERT INTO {table}({','.join(keys)},created) VALUES({','.join(['%s']*len(keys))},%s)"
-    rid=execute(sql,tuple(vals+[datetime.now().strftime("%Y-%m-%d %H:%M")]),True)
-    return jsonify(ok=True,id=rid)
+    actor=request.user["name"] or request.user["username"]
+    sql=f"INSERT INTO {table}({','.join(keys)},created,created_by) VALUES({','.join(['%s']*len(keys))},%s,%s)"
+    rid=execute(sql,tuple(vals+[datetime.now().strftime("%Y-%m-%d %H:%M"),actor]),True)
+    execute("""INSERT INTO audit_log(user_id,username,user_name,action,module,record_id,details,created)
+               VALUES(%s,%s,%s,'CREATE',%s,%s,%s,%s)""",
+            (request.user["id"],request.user["username"],actor,table,rid,"New record",
+             datetime.now().strftime("%Y-%m-%d %H:%M")))
+    return jsonify(ok=True,id=rid,created_by=actor)
 
 @app.patch("/api/mobile/<table>/<int:row_id>")
 @auth
@@ -159,9 +170,14 @@ def table_update(table,row_id):
             try:v=float(v) if str(v).strip() else 0
             except:v=0
         vals.append(v)
+    actor=request.user["name"] or request.user["username"]
     sets=",".join([f"{k}=%s" for k in keys])
-    execute(f"UPDATE {table} SET {sets} WHERE id=%s",tuple(vals+[row_id]))
-    return jsonify(ok=True,id=row_id)
+    execute(f"UPDATE {table} SET {sets},updated_by=%s WHERE id=%s",tuple(vals+[actor,row_id]))
+    execute("""INSERT INTO audit_log(user_id,username,user_name,action,module,record_id,details,created)
+               VALUES(%s,%s,%s,'UPDATE',%s,%s,%s,%s)""",
+            (request.user["id"],request.user["username"],actor,table,row_id,", ".join(keys),
+             datetime.now().strftime("%Y-%m-%d %H:%M")))
+    return jsonify(ok=True,id=row_id,updated_by=actor)
 
 @app.get("/api/mobile/finance-summary")
 @auth
@@ -184,6 +200,59 @@ def finance_summary():
 @app.route("/")
 def home():return redirect("/mobile")
 
+
+def admin_only():
+    return str(request.user.get("role") or "").lower() in ("administrator","admin")
+
+@app.route("/api/mobile/user-accounts",methods=["GET","POST"])
+@auth
+def user_accounts():
+    if not admin_only():return jsonify(error="Administrator access required"),403
+    if request.method=="GET":
+        return jsonify(query("""SELECT id,username,name,role,active,created
+                               FROM mobile_users ORDER BY id DESC"""))
+    x=request.get_json(silent=True) or {}
+    username=(x.get("username") or "").strip().lower()
+    name=(x.get("name") or "").strip()
+    role=(x.get("role") or "Staff").strip()
+    password=x.get("password") or ""
+    if len(username)<3:return jsonify(error="Username must be at least 3 characters"),400
+    if not name:return jsonify(error="Staff name is required"),400
+    if len(password)<6:return jsonify(error="Password must be at least 6 characters"),400
+    if query("SELECT id FROM mobile_users WHERE username=%s",(username,),True):
+        return jsonify(error="Username already exists"),400
+    uid=execute("""INSERT INTO mobile_users(username,password_hash,name,role,active,created)
+                   VALUES(%s,%s,%s,%s,1,%s)""",
+                (username,generate_password_hash(password),name,role,datetime.now().strftime("%Y-%m-%d %H:%M")),True)
+    return jsonify(ok=True,id=uid)
+
+@app.patch("/api/mobile/user-accounts/<int:user_id>")
+@auth
+def update_user_account(user_id):
+    if not admin_only():return jsonify(error="Administrator access required"),403
+    x=request.get_json(silent=True) or {}
+    allowed=[]
+    vals=[]
+    for k in ("name","role","active"):
+        if k in x:
+            allowed.append(k+"=%s"); vals.append(x[k])
+    if x.get("password"):
+        if len(x["password"])<6:return jsonify(error="Password must be at least 6 characters"),400
+        allowed.append("password_hash=%s");vals.append(generate_password_hash(x["password"]))
+    if not allowed:return jsonify(error="No changes"),400
+    vals.append(user_id)
+    execute("UPDATE mobile_users SET "+",".join(allowed)+" WHERE id=%s",tuple(vals))
+    execute("DELETE FROM mobile_tokens WHERE user_id=%s",(user_id,))
+    return jsonify(ok=True)
+
+@app.get("/api/mobile/activity")
+@auth
+def activity():
+    if admin_only():
+        rows=query("SELECT * FROM audit_log ORDER BY id DESC LIMIT 100")
+    else:
+        rows=query("SELECT * FROM audit_log WHERE user_id=%s ORDER BY id DESC LIMIT 100",(request.user["id"],))
+    return jsonify(rows)
 
 @app.get("/api/mobile/staff")
 @auth
@@ -239,10 +308,10 @@ def public_client_form(token):
         if beds: parts.append(beds+" Bed")
         if extra: parts.append(extra)
         requirement=" | ".join(parts)
-        execute("""INSERT INTO contacts(name,phone,email,ctype,budget,location,requirement,source,stage,assigned,followup,notes,created)
-                   VALUES(%s,%s,%s,%s,%s,%s,%s,'Client Self Form','New','','','',%s)""",
+        execute("""INSERT INTO contacts(name,phone,email,ctype,budget,location,requirement,source,stage,assigned,followup,notes,created,created_by)
+                   VALUES(%s,%s,%s,%s,%s,%s,%s,'Client Self Form','New','','','',%s,%s)""",
                 (f.get("name",""),f.get("phone",""),f.get("email",""),purpose,budget,location,requirement,
-                 datetime.now().strftime("%Y-%m-%d %H:%M")))
+                 datetime.now().strftime("%Y-%m-%d %H:%M"),row.get("created_by") or "Client Self Form"))
         execute("UPDATE client_forms SET used=1 WHERE token=%s",(token,))
         return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
         <meta charset="utf-8"><title>Requirement Received | Deewaryn</title></head>
@@ -389,11 +458,14 @@ const navGroups=[
  ['MAIN',[['dashboard','Dashboard']]],
  ['SALES & CLIENTS',[['crm','CRM / Clients'],['deals','Deals'],['clientform','Client Form']]],
  ['PROPERTY',[['properties','Properties'],['matching','Smart Match']]],
- ['TEAM',[['staff','Staff'],['messages','Staff Messages'],['tasks','Tasks']]],
+ ['TEAM',[['staff','Staff Performance'],['userids','Staff IDs'],['messages','Staff Messages'],['activity','Activity Log'],['tasks','Tasks']]],
  ['FINANCE',[['finance','Finance'],['rent','Rent']]],
  ['OPERATIONS',[['projects','Projects'],['maintenance','Maintenance']]]
 ];
-function shell(body){return '<div class="top"><div><div class="brand">Dee<span>waryn</span></div><div class="sub">Enterprise Command Center</div></div><div class="grow"></div><div class="user">'+esc(user?.name||'')+' • '+esc(user?.role||'')+'</div><button class="btn soft" style="margin-left:12px" onclick="logout()">Logout</button></div><div class="shell"><aside class="side">'+navGroups.map(g=>'<div class="group">'+g[0]+'</div>'+g[1].map(n=>'<button class="nav '+(view===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')">'+n[1]+'</button>').join('')).join('')+'</aside><main class="main">'+body+'</main></div>'}
+function shell(body){
+ let admin=['administrator','admin'].includes(String(user?.role||'').toLowerCase());
+ return '<div class="top"><div><div class="brand">Dee<span>waryn</span></div><div class="sub">Enterprise Command Center</div></div><div class="grow"></div><div class="user">'+esc(user?.name||'')+' • '+esc(user?.role||'')+'</div><button class="btn soft" style="margin-left:12px" onclick="logout()">Logout</button></div><div class="shell"><aside class="side">'+navGroups.map(g=>'<div class="group">'+g[0]+'</div>'+g[1].filter(n=>admin||n[0]!=='userids').map(n=>'<button class="nav '+(view===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')">'+n[1]+'</button>').join('')).join('')+'</aside><main class="main">'+body+'</main></div>'
+}
 function go(v){view=v;render()}
 async function dashboard(){
  let d=await api('/api/mobile/dashboard');
@@ -488,8 +560,8 @@ async function listPage(key){
 function tableHtml(key,d){
  let cc=cfg[key];
  if(!d.length)return '<div class="empty">No records yet.</div>';
- return '<table class="table"><thead><tr>'+cc.cols.map(x=>'<th>'+x.replace(/_/g,' ')+'</th>').join('')+'<th>Actions</th></tr></thead><tbody>'+
- d.map(r=>'<tr data-stage="'+esc(r.stage||r.status||'')+'">'+cc.cols.map(x=>'<td>'+fmt(x,r[x])+'</td>').join('')+'<td><div class="actions">'+
+ return '<table class="table"><thead><tr>'+cc.cols.map(x=>'<th>'+x.replace(/_/g,' ')+'</th>').join('')+'<th>Entered By</th><th>Updated By</th><th>Actions</th></tr></thead><tbody>'+
+ d.map(r=>'<tr data-stage="'+esc(r.stage||r.status||'')+'">'+cc.cols.map(x=>'<td>'+fmt(x,r[x])+'</td>').join('')+'<td><b>'+esc(r.created_by||'Legacy')+'</b></td><td>'+esc(r.updated_by||'—')+'</td><td><div class="actions">'+
  (key==='crm'?(r.phone?'<a class="btn green tiny" href="tel:'+esc(r.phone)+'">Call</a><a class="btn soft tiny" href="https://wa.me/'+esc(String(r.phone).replace(/[^0-9]/g,'').replace(/^0/,'92'))+'">WhatsApp</a>':'')+
  '<button class="btn dark tiny" onclick="openEdit(\'contacts\','+r.id+')">Edit</button><button class="btn soft tiny" onclick="setClientStage('+r.id+',\'Follow-up\')">Pending</button><button class="btn green tiny" onclick="setClientStage('+r.id+',\'Closed\')">Done</button><button class="btn gold tiny" onclick="showMatches('+r.id+',\''+esc(r.name).replace(/'/g,"&#39;")+'\')">Match</button>'
  :'<button class="btn dark tiny" onclick="openEdit(\''+cc.api+'\','+r.id+')">Edit</button>')+
@@ -525,6 +597,30 @@ async function saveEdit(apiName,id){
  await api('/api/mobile/'+apiName+'/'+id,{method:'PATCH',body:JSON.stringify(o)});closeM();render()
 }
 async function saveRec(apiName){let o={};(fields[apiName]||[]).forEach(f=>{let e=document.getElementById('f_'+f[0]);if(e&&e.value!=='')o[f[0]]=e.value});await api('/api/mobile/'+apiName,{method:'POST',body:JSON.stringify(o)});closeM();render()}
+async function userIdsPage(){
+ let rows=await api('/api/mobile/user-accounts');
+ return '<div class="head"><div><h1>Staff Login IDs</h1><div class="muted">Create a separate username and password for every agent or staff member.</div></div><div class="grow"></div><button class="btn gold" onclick="openUserCreate()">+ Create Staff ID</button></div>'+
+ '<div class="card tablebox">'+(rows.length?'<table class="table"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody>'+rows.map(x=>'<tr><td><b>'+esc(x.name)+'</b></td><td>'+esc(x.username)+'</td><td>'+esc(x.role)+'</td><td><span class="chip">'+(Number(x.active)?'Active':'Disabled')+'</span></td><td>'+esc(x.created||'')+'</td><td><div class="actions"><button class="btn soft tiny" onclick="resetUser('+x.id+',\''+esc(x.name).replace(/'/g,"&#39;")+'\')">Password</button>'+(x.username!=='admin'?'<button class="btn '+(Number(x.active)?'dark':'green')+' tiny" onclick="toggleUser('+x.id+','+(Number(x.active)?0:1)+')">'+(Number(x.active)?'Disable':'Enable')+'</button>':'')+'</div></td></tr>').join('')+'</tbody></table>':'<div class="empty">No staff IDs.</div>')+'</div>'
+}
+function openUserCreate(){
+ modal.innerHTML='<div class="modalbox"><div class="mh"><h2 style="margin:0">Create Staff Login ID</h2><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb"><div class="form">'+
+ '<div class="field"><label>Full Name</label><input id="un"></div><div class="field"><label>Username</label><input id="uu" autocomplete="off"></div>'+
+ '<div class="field"><label>Role</label><select id="ur"><option>Agent</option><option>Staff</option><option>Manager</option></select></div>'+
+ '<div class="field"><label>Temporary Password</label><input id="up" type="password" autocomplete="new-password"></div></div>'+
+ '<div class="muted" style="margin-top:10px">Each entry made after login will automatically show this staff member\'s name.</div>'+
+ '<div style="text-align:right;margin-top:14px"><button class="btn green" onclick="createUser()">Create Login</button></div></div></div>';modal.classList.add('show')
+}
+async function createUser(){
+ try{await api('/api/mobile/user-accounts',{method:'POST',body:JSON.stringify({name:un.value,username:uu.value,role:ur.value,password:up.value})});closeM();render()}catch(e){alert(e.message)}
+}
+async function toggleUser(id,active){if(!confirm(active?'Enable this staff login?':'Disable this staff login?'))return;await api('/api/mobile/user-accounts/'+id,{method:'PATCH',body:JSON.stringify({active})});render()}
+async function resetUser(id,name){let p=prompt('New password for '+name+' (minimum 6 characters):');if(!p)return;try{await api('/api/mobile/user-accounts/'+id,{method:'PATCH',body:JSON.stringify({password:p})});alert('Password changed. Staff must login again.')}catch(e){alert(e.message)}}
+async function activityPage(){
+ let rows=await api('/api/mobile/activity');
+ return '<div class="head"><div><h1>Activity Log</h1><div class="muted">Who entered or edited what, and when.</div></div></div><div class="card tablebox">'+
+ (rows.length?'<table class="table"><thead><tr><th>Staff</th><th>Action</th><th>Module</th><th>Record</th><th>Details</th><th>Date / Time</th></tr></thead><tbody>'+rows.map(x=>'<tr><td><b>'+esc(x.user_name||x.username)+'</b></td><td><span class="chip">'+esc(x.action)+'</span></td><td>'+esc(x.module)+'</td><td>#'+esc(x.record_id)+'</td><td>'+esc(x.details||'')+'</td><td>'+esc(x.created||'')+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">No activity yet.</div>')+'</div>'
+}
+
 async function financeCenter(){
  let [s,rows]=await Promise.all([api('/api/mobile/finance-summary'),api('/api/mobile/ledger')]);
  let maxExp=Math.max(1,...(s.expense_by_category||[]).map(x=>Number(x.amount||0)));
@@ -541,7 +637,7 @@ async function messages(){let [m,s]=await Promise.all([api('/api/mobile/messages
 async function sendMsg(){await api('/api/mobile/messages',{method:'POST',body:JSON.stringify({recipient:mr.value,message:mm.value})});render()}
 async function matching(){let cs=await api('/api/mobile/contacts');return '<div class="head"><div><h1>Smart Property Match</h1><div class="muted">Select a client to rank matching properties automatically</div></div></div><div class="card section">'+(cs.length?cs.map(x=>'<div style="padding:10px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px"><div class="grow"><b>'+esc(x.name)+'</b><div class="muted">'+esc(x.location)+' • '+money(x.budget)+'</div></div><button class="btn gold" onclick="showMatches('+x.id+',\''+esc(x.name).replace(/'/g,"&#39;")+'\')">Find Matches</button></div>').join(''):'<div class="empty">Add clients first.</div>')+'</div>'}
 async function showMatches(id,name){let d=await api('/api/mobile/matches/'+id);modal.innerHTML='<div class="modalbox"><div class="mh"><h2 style="margin:0">Matches for '+name+'</h2><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb">'+(d.length?d.map(x=>'<div class="card section" style="margin-bottom:10px"><div style="display:flex;gap:10px"><div class="grow"><b>'+esc(x.code||x.ptype)+'</b><div class="muted">'+esc(x.location)+' • '+esc(x.area)+' • '+money(x.price)+'</div><div class="muted">'+esc(x.match_reasons)+'</div></div><div class="score">'+x.match_score+'%</div></div></div>').join(''):'<div class="empty">No suitable properties found.</div>')+'</div></div>';modal.classList.add('show')}
-async function render(){if(!token||!user){login();return}app.innerHTML=shell('<div class="card section">Loading...</div>');try{let body;if(view==='dashboard')body=await dashboard();else if(view==='clientform')body=await clientForm();else if(view==='messages')body=await messages();else if(view==='matching')body=await matching();else if(view==='finance')body=await financeCenter();else body=await listPage(view);app.innerHTML=shell(body)}catch(e){app.innerHTML=shell('<div class="card section"><h3>Error</h3><p>'+esc(e.message)+'</p></div>')}}
+async function render(){if(!token||!user){login();return}app.innerHTML=shell('<div class="card section">Loading...</div>');try{let body;if(view==='dashboard')body=await dashboard();else if(view==='clientform')body=await clientForm();else if(view==='messages')body=await messages();else if(view==='matching')body=await matching();else if(view==='finance')body=await financeCenter();else if(view==='userids')body=await userIdsPage();else if(view==='activity')body=await activityPage();else body=await listPage(view);app.innerHTML=shell(body)}catch(e){app.innerHTML=shell('<div class="card section"><h3>Error</h3><p>'+esc(e.message)+'</p></div>')}}
 render();
 </script></body></html>"""
 
