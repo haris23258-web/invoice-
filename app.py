@@ -421,7 +421,20 @@ const cfg={
 };
 const fields={
  contacts:[['name','Client Name'],['phone','Phone'],['email','Email'],['ctype','Client Type'],['budget','Budget','number'],['location','Location'],['requirement','Requirement','textarea'],['source','Source'],['stage','Stage'],['assigned','Assigned'],['followup','Follow-up','date'],['notes','Notes','textarea']],
- properties:[['code','Property Code'],['purpose','Purpose'],['ptype','Property Type'],['location','Location'],['area','Area'],['price','Price','number'],['beds','Beds','number'],['baths','Baths','number'],['owner','Owner'],['phone','Phone'],['status','Status'],['notes','Notes','textarea']],
+ properties:[
+ ['code','Property Code'],
+ ['purpose','Purpose','select',['Sale','Rent']],
+ ['ptype','Property Type','select',['Full House','Ground Portion','Upper Portion','Lower Portion','Apartment','Plot','Commercial','Office','Shop','Farm House']],
+ ['location','Location','location'],
+ ['area','Area','select',['2.5 Marla','3 Marla','4 Marla','5 Marla','6 Marla','7 Marla','8 Marla','10 Marla','12 Marla','14 Marla','1 Kanal','2 Kanal','Other']],
+ ['price','Price','number'],
+ ['beds','Beds','select',['1','2','3','4','5','6','7','8','9','10+']],
+ ['baths','Baths','select',['1','2','3','4','5','6','7','8','9','10+']],
+ ['owner','Owner'],
+ ['phone','Owner Phone','tel'],
+ ['status','Status','select',['Available','Reserved','Sold','Rented','Hold']],
+ ['notes','Property Notes','textarea']
+],
  deals:[['title','Deal Title'],['client','Client'],['property_code','Property Code'],['stage','Stage'],['deal_value','Deal Value','number'],['commission','Commission','number'],['assigned','Assigned'],['next_action','Next Action'],['notes','Notes','textarea']],
  tasks:[['title','Task'],['related_to','Related To'],['due','Due','date'],['priority','Priority'],['status','Status'],['assigned','Assigned'],['notes','Notes','textarea']],
  employees:[['name','Employee'],['phone','Phone'],['email','Email'],['role','Role'],['salary','Salary','number'],['visits','Visits','number'],['calls','Calls','number'],['properties','Properties Found','number'],['deals','Deals Closed','number'],['expense','Expense','number'],['status','Status'],['notes','Notes','textarea']],
@@ -430,6 +443,39 @@ const fields={
  projects:[['name','Project'],['ptype','Type'],['client','Client'],['phone','Phone'],['location','Location'],['contract','Contract','number'],['spent','Spent','number'],['progress','Progress %','number'],['status','Status'],['start_date','Start','date'],['end_date','End','date'],['notes','Notes','textarea']],
  maintenance:[['title','Job'],['client','Client'],['phone','Phone'],['location','Location'],['category','Category'],['priority','Priority'],['assigned','Assigned'],['status','Status'],['estimate','Estimate','number'],['spent','Spent','number'],['notes','Notes','textarea']]
 };
+const propertyLocations=[
+'Mumtaz Colony Rawalpindi','Mumtaz Market Rawalpindi','Chaklala Scheme 1','Chaklala Scheme 2','Chaklala Scheme 3','Scheme 3 Rawalpindi',
+'Bostan Khan Road','Zeeshan Street Chaklala','Airport Housing Society','Gulzar-e-Quaid','Fazal Town Phase 1','Fazal Town Phase 2',
+'Gulraiz 1','Gulraiz 2','Gulraiz 3','Gulraiz 4','Gulraiz 5','Media Town','PWD Housing Scheme','Police Foundation',
+'Pakistan Town Phase 1','Pakistan Town Phase 2','Soan Garden','CBR Town Phase 1','CBR Town Phase 2','Jinnah Garden','Naval Anchorage',
+'Korang Town','Khanna Pul','Ghauri Town Phase 4A','Ghauri Town Phase 4B','Ghauri Town Phase 5','Ghauri Town Phase 7','Ghauri Town Phase 8',
+'Sadiqabad Rawalpindi','Shamsabad','Satellite Town Rawalpindi','Commercial Market','6th Road Rawalpindi','Chandni Chowk','Rehmanabad',
+'Committee Chowk','Saddar Rawalpindi','Lal Kurti','Westridge 1','Westridge 2','Westridge 3','Westridge 4','Range Road','Misrial Road',
+'Peshawar Road','Chur Chowk','Qasim Market','Tench Bhatta','Dhoke Syedan','Dhoke Chaudhrian','Dhoke Kashmirian','Dhoke Kala Khan',
+'Dhoke Hassu','Pirwadhai','Asghar Mall Scheme','Arya Mohalla','Banni Rawalpindi','Kartarpura','Raja Bazar','College Road Rawalpindi',
+'Tipu Road','Marir Hassan','Adiala Road','Munawar Colony','Gulshan Abad','Kehkashan Colony','Caltex Road','Dhamial Road','Girja Road',
+'Morgah','Kotha Kalan','Dhok Juma','Askari 7','Askari 14','DHA Phase 1 Islamabad','DHA Phase 2 Islamabad','DHA Phase 3 Islamabad',
+'DHA Phase 4 Islamabad','DHA Phase 5 Islamabad','Bahria Town Phase 1','Bahria Town Phase 2','Bahria Town Phase 3','Bahria Town Phase 4',
+'Bahria Town Phase 5','Bahria Town Phase 6','Bahria Town Phase 7','Bahria Town Phase 8','Bahria Safari Villas','Bahria Garden City',
+'Yousaf Colony Rawalpindi','Ayub Colony','Ali Town Rawalpindi','Defence Road Rawalpindi','Rawat',
+'G-5 Islamabad','G-6 Islamabad','G-7 Islamabad','G-8 Islamabad','G-9 Islamabad','G-10 Islamabad','G-11 Islamabad','G-12 Islamabad',
+'G-13 Islamabad','G-14 Islamabad','G-15 Islamabad','G-16 Islamabad','F-5 Islamabad','F-6 Islamabad','F-7 Islamabad','F-8 Islamabad',
+'F-10 Islamabad','F-11 Islamabad','F-12 Islamabad','F-13 Islamabad','F-14 Islamabad','F-15 Islamabad','E-7 Islamabad','E-11 Islamabad',
+'E-12 Islamabad','E-16 Islamabad','E-17 Islamabad','I-8 Islamabad','I-9 Islamabad','I-10 Islamabad','I-11 Islamabad','I-12 Islamabad',
+'I-14 Islamabad','I-15 Islamabad','I-16 Islamabad','H-13 Islamabad','H-15 Islamabad','D-12 Islamabad','D-13 Islamabad','D-17 Islamabad',
+'B-17 Islamabad','B-18 Islamabad','C-15 Islamabad','C-16 Islamabad','Faisal Town Islamabad','Faisal Hills','Top City-1','Mumtaz City',
+'Capital Smart City','Blue World City','MPCHS Multi Gardens B-17','Gulberg Greens','Gulberg Residencia','Park View City Islamabad',
+'Bani Gala','Bhara Kahu','Park Road Islamabad','Taramri','Lehtrar Road','Chatta Bakhtawar','Chak Shahzad','Kuri Road','Shahzad Town',
+'NIH Colony','Margalla Town','Blue Area Islamabad'
+];
+function fieldControl(prefix,f,value=''){
+ let [k,l,t='text',opts=[]]=f,v=esc(value??''),id=prefix+'_'+k;
+ if(t==='textarea')return '<textarea id="'+id+'">'+v+'</textarea>';
+ if(t==='select')return '<select id="'+id+'"><option value="">Select '+esc(l)+'</option>'+opts.map(o=>'<option value="'+esc(o)+'" '+(String(value??'')===String(o)?'selected':'')+'>'+esc(o)+'</option>').join('')+'</select>';
+ if(t==='location')return '<input id="'+id+'" type="text" list="propertyLocationList" autocomplete="off" placeholder="Type area e.g. Mumtaz, Scheme 3, Bahria" value="'+v+'"><datalist id="propertyLocationList">'+propertyLocations.map(x=>'<option value="'+esc(x)+'"></option>').join('')+'</datalist>';
+ if(t==='number')return '<input id="'+id+'" type="number" inputmode="numeric" min="0" value="'+v+'">';
+ return '<input id="'+id+'" type="'+t+'" value="'+v+'">';
+}
 function fmt(k,v){if(v===null||v==='')return '—';if(['price','budget','deal_value','commission','salary','expense','amount','monthly_rent','security','contract','spent','estimate'].includes(k))return money(v);if(['status','stage','priority','purpose','etype'].includes(k))return '<span class="chip">'+esc(v)+'</span>';return esc(v)}
 async function listPage(key){
  let cc=cfg[key],d=await api('/api/mobile/'+cc.api);
@@ -458,14 +504,21 @@ function crmFilter(mode){
 }
 async function setClientStage(id,stage){await api('/api/mobile/contacts/'+id,{method:'PATCH',body:JSON.stringify({stage})});render()}
 async function searchPage(key,q){let c=cfg[key],d=await api('/api/mobile/'+c.api+'?q='+encodeURIComponent(q));document.querySelector('.tablebox').innerHTML=d.length?'<table class="table"><tbody>'+d.map(r=>'<tr><td><b>'+esc(r[c.primary]||'')+'</b></td><td>'+esc(JSON.stringify(r).slice(0,180))+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">No matches</div>'}
-function openAdd(apiName){let fs=fields[apiName]||[];modal.innerHTML='<div class="modalbox"><div class="mh"><h2 style="margin:0">Add '+apiName.replace(/_/g,' ')+'</h2><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb"><div class="form">'+fs.map(f=>{let [k,l,t='text']=f;return '<div class="field '+(t==='textarea'?'full':'')+'"><label>'+l+'</label>'+(t==='textarea'?'<textarea id="f_'+k+'"></textarea>':'<input id="f_'+k+'" type="'+t+'">')+'</div>'}).join('')+'</div><div style="text-align:right;margin-top:14px"><button class="btn green" onclick="saveRec(\''+apiName+'\')">Save</button></div></div></div>';modal.classList.add('show')}
+function openAdd(apiName){
+ let fs=fields[apiName]||[];
+ modal.innerHTML='<div class="modalbox"><div class="mh"><div><h2 style="margin:0">Add '+apiName.replace(/_/g,' ')+'</h2>'+(apiName==='properties'?'<div class="muted">Purpose, type, location, area and property details</div>':'')+'</div><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb"><div class="form">'+
+ fs.map(f=>'<div class="field '+(f[2]==='textarea'||f[2]==='location'?'full':'')+'"><label>'+f[1]+'</label>'+fieldControl('f',f,'')+'</div>').join('')+
+ '</div><div style="text-align:right;margin-top:14px"><button class="btn green" onclick="saveRec(\''+apiName+'\')">Save</button></div></div></div>';
+ modal.classList.add('show')
+}
 function closeM(){modal.classList.remove('show')}
 async function openEdit(apiName,id){
  let rows=await api('/api/mobile/'+apiName),row=rows.find(x=>Number(x.id)===Number(id));if(!row)return alert('Record not found');
  let fs=fields[apiName]||[];
  modal.innerHTML='<div class="modalbox"><div class="mh"><h2 style="margin:0">Edit '+apiName.replace(/_/g,' ')+'</h2><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb"><div class="form">'+
- fs.map(f=>{let [k,l,t='text']=f,v=esc(row[k]??'');return '<div class="field '+(t==='textarea'?'full':'')+'"><label>'+l+'</label>'+(t==='textarea'?'<textarea id="e_'+k+'">'+v+'</textarea>':'<input id="e_'+k+'" type="'+t+'" value="'+v+'">')+'</div>'}).join('')+
- '</div><div style="text-align:right;margin-top:14px"><button class="btn green" onclick="saveEdit(\''+apiName+'\','+id+')">Save Changes</button></div></div></div>';modal.classList.add('show')
+ fs.map(f=>'<div class="field '+(f[2]==='textarea'||f[2]==='location'?'full':'')+'"><label>'+f[1]+'</label>'+fieldControl('e',f,row[f[0]]??'')+'</div>').join('')+
+ '</div><div style="text-align:right;margin-top:14px"><button class="btn green" onclick="saveEdit(\''+apiName+'\','+id+')">Save Changes</button></div></div></div>';
+ modal.classList.add('show')
 }
 async function saveEdit(apiName,id){
  let o={};(fields[apiName]||[]).forEach(f=>{let e=document.getElementById('e_'+f[0]);if(e)o[f[0]]=e.value});
