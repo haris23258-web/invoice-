@@ -352,7 +352,9 @@ def public_client_form(token):
         <div style="font-weight:900;font-size:30px;color:#10251c">Dee<span style="color:#159b62">waryn</span></div>
         <h2 style="margin-top:24px;color:#159b62">Requirement received</h2>
         <p style="color:#65766d;line-height:1.6">Thank you. Our team will review suitable properties and contact you shortly.</p>
-        <p style="font-size:12px;color:#829087">deewaryn.com</p></div></body></html>"""
+        <p style="font-size:12px;color:#829087">Official website: deewaryn.com</p>
+        <a href="https://deewaryn.com" target="_blank" style="display:inline-block;margin-top:10px;background:#159b62;color:white;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:800">Visit Deewaryn.com</a>
+        </div></body></html>"""
     ref=token[-6:].upper()
     locations=[
       "Bahria Town Phase 1","Bahria Town Phase 2","Bahria Town Phase 3","Bahria Town Phase 4",
@@ -407,7 +409,12 @@ def public_client_form(token):
       <div class="full"><label>Extra requirement (optional)</label><textarea name="extra" placeholder="Corner, park facing, basement, double unit, parking, new house, etc."></textarea></div>
     </div><button type="submit">Send My Requirement</button></form>
     <div class="note"><b>Privacy:</b> This form only collects your property requirement and contact details for Deewaryn. We never ask for passwords, PINs, OTPs or card details.</div>
-    </div></div><div class="foot">deewaryn.com • Secure HTTPS form</div></div>
+    <div style="margin-top:14px;padding:14px;border:1px solid #dce8e1;border-radius:12px;background:#f8fbf9">
+      <div style="font-weight:900">Want to know more about Deewaryn?</div>
+      <div style="font-size:12px;color:#6d7d75;margin-top:4px">Visit our official website to explore our property and real-estate services.</div>
+      <a href="https://deewaryn.com" target="_blank" style="display:inline-block;margin-top:10px;background:#102f22;color:white;text-decoration:none;padding:11px 14px;border-radius:9px;font-weight:800">Visit deewaryn.com</a>
+    </div>
+    </div></div><div class="foot">Official website: deewaryn.com • Secure HTTPS form</div></div>
     <script>function cleanBudget(){{var b=document.getElementById('budget');b.value=b.value.replace(/[^0-9]/g,'');}}</script>
     </body></html>"""
 
