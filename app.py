@@ -345,7 +345,7 @@ def public_client_form(token):
                 (f.get("name",""),f.get("phone",""),f.get("email",""),purpose,budget,location,requirement,
                  datetime.now().strftime("%Y-%m-%d %H:%M"),row.get("created_by") or "Client Self Form"))
         execute("UPDATE client_forms SET used=1 WHERE token=%s",(token,))
-        return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+        return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
         <meta charset="utf-8"><title>Requirement Received | Deewaryn</title></head>
         <body style="margin:0;font-family:Arial;background:#0b2b1e;padding:24px">
         <div style="max-width:560px;margin:55px auto;background:white;padding:32px;border-radius:22px;text-align:center">
@@ -505,8 +505,39 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .catBottom{display:flex;align-items:center;margin-top:11px}.categoryCard strong{display:block;font-size:18px;color:var(--g2)}.catArrow{margin-left:auto;width:27px;height:27px;border-radius:50%;background:#edf7f1;color:var(--g2);display:grid;place-items:center;font-size:16px;font-weight:900}
 .kpi{animation:rise .45s ease both}.kpi:hover{animation:pulseGlow 1.6s ease infinite}.aboutBox{background:linear-gradient(135deg,#fff,#f4faf6);border:1px solid #dce9e1;border-radius:20px;padding:20px}.aboutLogo{font-size:26px;font-weight:900}.aboutLogo span{color:var(--g)}.aboutTags{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.aboutTag{background:#edf6f1;color:#345947;padding:7px 9px;border-radius:999px;font-size:11px;font-weight:800}
 @media(max-width:1200px){.categoryGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.categoryGrid{grid-template-columns:1fr}.categoryCard{min-height:96px}}
-@media(max-width:1000px){.shell{grid-template-columns:1fr}.side{position:fixed;left:0;right:0;bottom:0;top:auto;height:78px;display:flex;overflow-x:auto;z-index:30;padding:7px;background:#fff;border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(17,37,29,.08)}.sideBrand,.group{display:none}.nav{min-width:112px;height:62px;margin:0 5px;padding:7px 9px;justify-content:center;flex-direction:column;gap:3px;border-radius:12px}.navIcon{width:26px;height:26px;flex:0 0 26px;font-size:13px}.navTitle{font-size:10px;text-align:center}.navHint{display:none}.main{padding-bottom:95px}.kpis{grid-template-columns:repeat(2,1fr)}.cols2{grid-template-columns:1fr}}
-@media(max-width:650px){.main{padding:14px}.quick{grid-template-columns:repeat(2,1fr)}.form{grid-template-columns:1fr}.full{grid-column:auto}.head h1{font-size:22px}}
+@media(max-width:1000px){
+ .shell{grid-template-columns:1fr}
+ .top{height:auto;min-height:64px;padding:10px 12px;gap:8px;flex-wrap:wrap}
+ .brand{font-size:20px}.sub{font-size:10px}.user{font-size:10px;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .top .btn{padding:8px 10px;font-size:11px}
+ .side{position:fixed;left:0;right:0;bottom:0;top:auto;height:74px;display:flex;overflow-x:auto;overflow-y:hidden;z-index:30;padding:6px;background:#fff;border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(17,37,29,.08)}
+ .sideBrand,.group{display:none}
+ .nav{min-width:86px;height:60px;margin:0 3px;padding:6px;justify-content:center;flex-direction:column;gap:2px;border-radius:11px;flex:0 0 auto}
+ .navIcon{width:24px;height:24px;flex:0 0 24px;font-size:11px}.navTitle{font-size:9px;text-align:center;white-space:nowrap}.navHint{display:none}
+ .main{padding:12px 10px 90px;overflow-x:hidden}
+ .head{align-items:flex-start;flex-wrap:wrap}.head h1{font-size:21px}.head>.grow{display:none}.head .btn{font-size:11px;padding:8px 10px}
+ .dashHero{padding:18px;border-radius:18px}.dashHero h1{font-size:24px}.dashHero p{font-size:12px}.heroActions{gap:6px}.heroActions .btn{font-size:11px;padding:8px 10px}
+ .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kpi{padding:12px}.kpi b{font-size:18px}.kpi small{font-size:9px}
+ .cols2{grid-template-columns:1fr}.finrow{grid-template-columns:1fr 1fr 1fr;gap:7px}
+ .categoryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.categoryCard{min-height:92px;padding:10px}.catIcon{width:28px;height:28px;flex-basis:28px}.categoryCard b{font-size:12px}.categoryCard small{font-size:9px}.categoryCard strong{font-size:16px}.catArrow{width:24px;height:24px}
+ .quick{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.quick button{padding:10px;font-size:11px}
+ .toolbar{display:grid;grid-template-columns:1fr auto;gap:7px}.search{width:100%;min-width:0}
+ .tablebox{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}.table{min-width:720px}.table th,.table td{padding:9px 8px;font-size:10px}.table th{font-size:9px}
+ .actions{gap:4px}.tiny{padding:6px 7px;font-size:9px}
+ .modal{align-items:flex-end;padding:0}.modalbox{width:100%;max-height:92vh;border-radius:18px 18px 0 0}.mh{padding:14px}.mb{padding:14px}
+ .form{grid-template-columns:1fr}.full{grid-column:auto}.field input,.field select,.field textarea{font-size:16px;padding:11px}
+ .section{padding:13px}.miniItem{padding:9px}
+}
+@media(max-width:650px){
+ .main{padding:10px 8px 88px}
+ .categoryGrid{grid-template-columns:1fr 1fr}.categoryCard{min-height:88px;padding:9px}
+ .categoryCard small{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ .kpis{grid-template-columns:1fr 1fr}.finrow{grid-template-columns:1fr}
+ .dashHero h1{font-size:22px}.dashHero p{font-size:11px}
+ .heroActions{display:grid;grid-template-columns:1fr 1fr}.heroActions .btn:last-child{grid-column:1/-1}
+ .sectionTitle h3{font-size:13px}.sectionTitle span{font-size:8px}
+ .table{min-width:640px}
+}
 </style></head><body><div id="app"></div><div id="modal" class="modal"></div>
 <script>
 let token=localStorage.getItem('dw_token')||'',user=null,view='dashboard';
