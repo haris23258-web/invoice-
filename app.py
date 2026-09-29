@@ -475,6 +475,8 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .navIcon{width:36px;height:36px;border-radius:11px;background:#edf6f1;color:#0f7c4d;display:grid;place-items:center;font-size:16px;flex:0 0 36px}
 .nav.on .navIcon{background:rgba(255,255,255,.16);color:#fff}
 .navText{min-width:0;flex:1}.navTitle{font-size:14px;line-height:1.2}.navHint{font-size:10px;color:#8b9a93;margin-top:3px;font-weight:700}.nav.on .navHint{color:#d9f0e4}
+.menuBtn{display:none;border:0;background:#173d2c;color:#fff;border-radius:10px;padding:9px 11px;font-weight:900;cursor:pointer}
+.menuOverlay{display:none}
 .main{padding:22px;min-width:0}.head{display:flex;gap:12px;align-items:center;margin-bottom:16px}.head h1{margin:0;font-size:28px}.muted{color:var(--muted);font-size:12px}.grow{flex:1}
 .btn{border:0;border-radius:10px;padding:10px 13px;font-weight:800;cursor:pointer}.green{background:var(--g);color:#fff}.soft{background:#eaf6ef;color:var(--g2)}.gold{background:var(--gold);color:#171717}.dark{background:#173d2c;color:#fff}
 .grid{display:grid;gap:13px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:0 10px 28px rgba(17,37,29,.05)}
@@ -507,14 +509,16 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 @media(max-width:1200px){.categoryGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.categoryGrid{grid-template-columns:1fr}.categoryCard{min-height:96px}}
 @media(max-width:1000px){
  .shell{grid-template-columns:1fr}
- .top{height:auto;min-height:64px;padding:10px 12px;gap:8px;flex-wrap:wrap}
- .brand{font-size:20px}.sub{font-size:10px}.user{font-size:10px;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- .top .btn{padding:8px 10px;font-size:11px}
- .side{position:fixed;left:0;right:0;bottom:0;top:auto;height:74px;display:flex;overflow-x:auto;overflow-y:hidden;z-index:30;padding:6px;background:#fff;border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(17,37,29,.08)}
- .sideBrand,.group{display:none}
- .nav{min-width:86px;height:60px;margin:0 3px;padding:6px;justify-content:center;flex-direction:column;gap:2px;border-radius:11px;flex:0 0 auto}
- .navIcon{width:24px;height:24px;flex:0 0 24px;font-size:11px}.navTitle{font-size:9px;text-align:center;white-space:nowrap}.navHint{display:none}
- .main{padding:12px 10px 90px;overflow-x:hidden}
+ .top{height:auto;min-height:64px;padding:10px 12px;gap:8px;flex-wrap:nowrap}
+ .brand{font-size:20px}.sub{font-size:10px}.user{font-size:10px;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .top .btn{padding:8px 10px;font-size:11px}.menuBtn{display:inline-flex;align-items:center;justify-content:center;font-size:18px}
+ .side{position:fixed;left:0;top:0;bottom:0;width:min(82vw,300px);height:100vh;z-index:60;padding:14px;background:linear-gradient(180deg,#f9fbfa,#eef5f1);transform:translateX(-105%);transition:transform .26s ease;overflow-y:auto;box-shadow:18px 0 45px rgba(8,39,26,.20);border-right:1px solid #dce8e1}
+ .side.open{transform:translateX(0)}
+ .sideBrand{display:block;margin-top:2px}.group{display:block}
+ .nav{width:100%;min-width:0;height:auto;margin:0 0 8px;padding:10px 11px;justify-content:flex-start;flex-direction:row;gap:10px;border-radius:14px}
+ .navIcon{width:34px;height:34px;flex:0 0 34px;font-size:12px}.navTitle{font-size:13px;text-align:left}.navHint{display:block;font-size:9px}
+ .menuOverlay{position:fixed;inset:0;background:rgba(4,20,13,.46);z-index:55;display:none}.menuOverlay.show{display:block}
+ .main{padding:12px 10px 24px;overflow-x:hidden}
  .head{align-items:flex-start;flex-wrap:wrap}.head h1{font-size:21px}.head>.grow{display:none}.head .btn{font-size:11px;padding:8px 10px}
  .dashHero{padding:18px;border-radius:18px}.dashHero h1{font-size:24px}.dashHero p{font-size:12px}.heroActions{gap:6px}.heroActions .btn{font-size:11px;padding:8px 10px}
  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kpi{padding:12px}.kpi b{font-size:18px}.kpi small{font-size:9px}
@@ -524,7 +528,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .toolbar{display:grid;grid-template-columns:1fr auto;gap:7px}.search{width:100%;min-width:0}
  .tablebox{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}.table{min-width:720px}.table th,.table td{padding:9px 8px;font-size:10px}.table th{font-size:9px}
  .actions{gap:4px}.tiny{padding:6px 7px;font-size:9px}
- .modal{align-items:flex-end;padding:0}.modalbox{width:100%;max-height:92vh;border-radius:18px 18px 0 0}.mh{padding:14px}.mb{padding:14px}
+ .modal{align-items:center;padding:12px}.modalbox{width:min(94vw,760px);max-height:90vh;border-radius:18px}.mh{padding:14px}.mb{padding:14px}
  .form{grid-template-columns:1fr}.full{grid-column:auto}.field input,.field select,.field textarea{font-size:16px;padding:11px}
  .section{padding:13px}.miniItem{padding:9px}
 }
@@ -576,12 +580,15 @@ const navGroups=[
 ];
 function shell(body){
  let admin=['administrator','admin'].includes(String(user?.role||'').toLowerCase());
- return '<div class="top"><div><div class="brand">Dee<span>waryn</span></div><div class="sub">Enterprise Command Center</div></div><div class="grow"></div><div class="user">'+esc(user?.name||'')+' • '+esc(user?.role||'')+'</div><button class="btn soft" style="margin-left:12px" onclick="logout()">Logout</button></div>'+
- '<div class="shell"><aside class="side"><div class="sideBrand"><div class="sbLogo">Dee<span>waryn</span></div><div class="sbSub">Real Estate Operations</div></div>'+
+ return '<div class="top"><button class="menuBtn" onclick="toggleMenu()">☰</button><div><div class="brand">Dee<span>waryn</span></div><div class="sub">Enterprise Command Center</div></div><div class="grow"></div><div class="user">'+esc(user?.name||'')+' • '+esc(user?.role||'')+'</div><button class="btn soft" style="margin-left:8px" onclick="logout()">Logout</button></div>'+
+ '<div id="menuOverlay" class="menuOverlay" onclick="closeMenu()"></div>'+
+ '<div class="shell"><aside id="sideMenu" class="side"><div class="sideBrand"><div style="display:flex;align-items:center;gap:8px"><div class="grow"><div class="sbLogo">Dee<span>waryn</span></div><div class="sbSub">Real Estate Operations</div></div><button class="menuBtn" style="display:inline-flex;background:#eaf6ef;color:#0c6e46" onclick="closeMenu()">✕</button></div></div>'+
  navGroups.map(g=>'<div class="group">'+g[0]+'</div>'+g[1].filter(n=>admin||n[0]!=='userids').map(n=>{let m=navMeta[n[0]]||['•',''];return '<button class="nav '+(view===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')"><div class="navIcon">'+m[0]+'</div><div class="navText"><div class="navTitle">'+n[1]+'</div><div class="navHint">'+m[1]+'</div></div></button>'}).join('')).join('')+
  '</aside><main class="main">'+body+'</main></div>'
 }
-function go(v){view=v;render()}
+function toggleMenu(){document.getElementById('sideMenu')?.classList.toggle('open');document.getElementById('menuOverlay')?.classList.toggle('show')}
+function closeMenu(){document.getElementById('sideMenu')?.classList.remove('open');document.getElementById('menuOverlay')?.classList.remove('show')}
+function go(v){view=v;closeMenu();render()}
 async function dashboard(){
  let d=await api('/api/mobile/dashboard');
  let follow=(d.followups||[]).slice(0,6);
