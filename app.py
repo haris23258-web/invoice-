@@ -485,6 +485,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .nav.on .navIcon{background:rgba(255,255,255,.16);color:#fff}
 .navText{min-width:0;flex:1}.navTitle{font-size:14px;line-height:1.2}.navHint{font-size:10px;color:#8b9a93;margin-top:3px;font-weight:700}.nav.on .navHint{color:#d9f0e4}
 .menuBtn{display:none;border:0;background:#173d2c;color:#fff;border-radius:10px;padding:9px 11px;font-weight:900;cursor:pointer}
+.backBtn{display:none;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.10);color:#fff;border-radius:10px;padding:8px 10px;font-weight:900;cursor:pointer}
 .menuOverlay{display:none}
 .main{padding:22px;min-width:0}.head{display:flex;gap:12px;align-items:center;margin-bottom:16px}.head h1{margin:0;font-size:28px}.muted{color:var(--muted);font-size:12px}.grow{flex:1}
 .btn{border:0;border-radius:10px;padding:10px 13px;font-weight:800;cursor:pointer}.green{background:var(--g);color:#fff}.soft{background:#eaf6ef;color:var(--g2)}.gold{background:var(--gold);color:#171717}.dark{background:#173d2c;color:#fff}
@@ -521,19 +522,19 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .shell{grid-template-columns:1fr}
  .top{height:auto;min-height:56px;padding:calc(6px + env(safe-area-inset-top)) 10px 6px;gap:7px;flex-wrap:nowrap}
  .brand{font-size:17px}.sub{font-size:9px;line-height:1.1}.user{font-size:9px;max-width:85px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- .top .btn{padding:8px 10px;font-size:11px}.menuBtn{display:inline-flex;align-items:center;justify-content:center;font-size:18px}
+ .top .btn{padding:8px 10px;font-size:11px}.menuBtn{display:inline-flex;align-items:center;justify-content:center;font-size:18px}.backBtn{display:inline-flex;align-items:center;justify-content:center}
  .side{position:fixed;left:0;top:0;bottom:0;width:min(82vw,300px);height:100vh;z-index:60;padding:14px;background:linear-gradient(180deg,#f9fbfa,#eef5f1);transform:translateX(-105%);transition:transform .26s ease;overflow-y:auto;box-shadow:18px 0 45px rgba(8,39,26,.20);border-right:1px solid #dce8e1}
  .side.open{transform:translateX(0)}
  .sideBrand{display:block;margin-top:2px}.group{display:block}
  .nav{width:100%;min-width:0;height:auto;margin:0 0 8px;padding:10px 11px;justify-content:flex-start;flex-direction:row;gap:10px;border-radius:14px}
  .navIcon{width:34px;height:34px;flex:0 0 34px;font-size:12px}.navTitle{font-size:13px;text-align:left}.navHint{display:block;font-size:9px}
  .menuOverlay{position:fixed;inset:0;background:rgba(4,20,13,.46);z-index:55;display:none}.menuOverlay.show{display:block}
- .main{padding:12px 10px 24px;overflow-x:hidden}
+ .main{padding:10px 9px 22px;overflow-x:hidden}
  .head{align-items:flex-start;flex-wrap:wrap}.head h1{font-size:21px}.head>.grow{display:none}.head .btn{font-size:11px;padding:8px 10px}
- .dashHero{padding:14px;border-radius:16px}.dashHero h1{font-size:20px;line-height:1.15}.dashHero p{font-size:10px;line-height:1.35;max-width:none;margin-top:5px}.heroSummary{gap:10px;align-items:flex-start}.heroEyebrow{font-size:8px;letter-spacing:.9px}.heroProfit{min-width:92px;text-align:right}.heroProfit span{font-size:9px}.heroProfit b{font-size:19px}.heroActions{gap:5px;margin-top:11px}.heroActions .btn{font-size:10px;padding:7px 8px}
- .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kpi{padding:12px}.kpi b{font-size:18px}.kpi small{font-size:9px}
+ .dashHero{padding:12px;border-radius:15px}.dashHero h1{font-size:18px;line-height:1.15}.dashHero p{font-size:9px;line-height:1.3;max-width:none;margin-top:4px}.heroSummary{gap:8px;align-items:flex-start}.heroEyebrow{font-size:7px;letter-spacing:.8px}.heroProfit{min-width:78px;text-align:right}.heroProfit span{font-size:8px}.heroProfit b{font-size:17px}.heroActions{gap:5px;margin-top:9px}.heroActions .btn{font-size:9px;padding:7px 7px}
+ .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.kpi{padding:10px;border-radius:13px}.kpi b{font-size:16px}.kpi small{font-size:8px}
  .cols2{grid-template-columns:1fr}.finrow{grid-template-columns:1fr 1fr 1fr;gap:7px}
- .categoryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.categoryCard{min-height:82px;padding:9px}.catIcon{width:28px;height:28px;flex-basis:28px}.categoryCard b{font-size:12px}.categoryCard small{font-size:9px}.categoryCard strong{font-size:16px}.catArrow{width:24px;height:24px}
+ .categoryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.categoryCard{min-height:74px;padding:8px;border-radius:13px}.catIcon{width:26px;height:26px;flex-basis:26px}.categoryCard b{font-size:11px}.categoryCard small{font-size:8px}.categoryCard strong{font-size:14px}.catArrow{width:22px;height:22px}
  .quick{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.quick button{padding:10px;font-size:11px}
  .toolbar{display:grid;grid-template-columns:1fr auto;gap:7px}.search{width:100%;min-width:0}
  .tablebox{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}.table{min-width:720px}.table th,.table td{padding:9px 8px;font-size:10px}.table th{font-size:9px}
@@ -554,7 +555,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 }
 </style></head><body><div id="app"></div><div id="modal" class="modal"></div>
 <script>
-let token=localStorage.getItem('dw_token')||'',user=null,view='dashboard';
+let token=localStorage.getItem('dw_token')||'',user=null,view='dashboard',viewHistory=[];
 try{user=JSON.parse(localStorage.getItem('dw_user')||'null')}catch(e){}
 const esc=v=>String(v??'').replace(/[&<>"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
 const money=v=>'PKR '+Number(v||0).toLocaleString();
@@ -590,7 +591,8 @@ const navGroups=[
 ];
 function shell(body){
  let admin=['administrator','admin'].includes(String(user?.role||'').toLowerCase());
- return '<div class="top"><button class="menuBtn" onclick="toggleMenu()">☰</button><div><div class="brand">Dee<span>waryn</span></div><div class="sub">Enterprise Command Center</div></div><div class="grow"></div><div class="user">'+esc(user?.name||'')+' • '+esc(user?.role||'')+'</div><button class="btn soft" style="margin-left:8px" onclick="logout()">Logout</button></div>'+
+ let back=view!=='dashboard'?'<button class="backBtn" onclick="goBack()">‹</button>':'';
+ return '<div class="top">'+back+'<button class="menuBtn" onclick="toggleMenu()">☰</button><div><div class="brand">Dee<span>waryn</span></div><div class="sub">Enterprise Command Center</div></div><div class="grow"></div><div class="user">'+esc(user?.name||'')+' • '+esc(user?.role||'')+'</div><button class="btn soft" style="margin-left:8px" onclick="logout()">Logout</button></div>'+
  '<div id="menuOverlay" class="menuOverlay" onclick="closeMenu()"></div>'+
  '<div class="shell"><aside id="sideMenu" class="side"><div class="sideBrand"><div style="display:flex;align-items:center;gap:8px"><div class="grow"><div class="sbLogo">Dee<span>waryn</span></div><div class="sbSub">Real Estate Operations</div></div><button class="menuBtn" style="display:inline-flex;background:#eaf6ef;color:#0c6e46" onclick="closeMenu()">✕</button></div></div>'+
  navGroups.map(g=>'<div class="group">'+g[0]+'</div>'+g[1].filter(n=>admin||n[0]!=='userids').map(n=>{let m=navMeta[n[0]]||['•',''];return '<button class="nav '+(view===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')"><div class="navIcon">'+m[0]+'</div><div class="navText"><div class="navTitle">'+n[1]+'</div><div class="navHint">'+m[1]+'</div></div></button>'}).join('')).join('')+
@@ -598,7 +600,8 @@ function shell(body){
 }
 function toggleMenu(){document.getElementById('sideMenu')?.classList.toggle('open');document.getElementById('menuOverlay')?.classList.toggle('show')}
 function closeMenu(){document.getElementById('sideMenu')?.classList.remove('open');document.getElementById('menuOverlay')?.classList.remove('show')}
-function go(v){view=v;closeMenu();render()}
+function go(v){if(v!==view)viewHistory.push(view);view=v;closeMenu();render()}
+function goBack(){if(viewHistory.length){view=viewHistory.pop()}else{view='dashboard'}closeMenu();render()}
 async function dashboard(){
  let d=await api('/api/mobile/dashboard');
  let follow=(d.followups||[]).slice(0,6);
