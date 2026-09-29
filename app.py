@@ -516,7 +516,18 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .clientRequirement{background:#fff9eb;border:1px solid #f1dfaa;border-radius:13px;padding:12px}
 .clientRequirement small{display:block;font-size:9px;color:#8a6b16;margin-bottom:4px}.clientRequirement b{font-size:12px;line-height:1.5}
 .clientViewActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-.clientViewActions .btn{text-align:center;text-decoration:none}.tiny{padding:7px 9px;font-size:11px}.search{width:min(420px,100%);padding:11px;border:1px solid var(--line);border-radius:10px}
+.clientViewActions .btn{text-align:center;text-decoration:none}
+.clientCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.clientCard{background:#fff;border:1px solid #e1e9e4;border-radius:17px;padding:14px;box-shadow:0 7px 20px rgba(17,37,29,.045);transition:.18s}
+.clientCard:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(17,37,29,.07);border-color:#c8ddd1}
+.clientCardTop{display:flex;align-items:flex-start;gap:10px}
+.clientAvatar{width:40px;height:40px;border-radius:12px;background:#edf7f1;color:var(--g2);display:grid;place-items:center;font-weight:900;flex:0 0 40px}
+.clientMain{min-width:0;flex:1}.clientMain h3{margin:0;font-size:15px}.clientMeta{margin-top:3px;font-size:10px;color:var(--muted)}
+.clientBadge{padding:5px 8px;border-radius:999px;background:#eef7f2;color:#0c6e46;font-size:9px;font-weight:900}
+.clientFacts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.clientFact{background:#f8fbf9;border-radius:11px;padding:8px}.clientFact small{display:block;font-size:8px;color:var(--muted);margin-bottom:2px}.clientFact b{font-size:11px;word-break:break-word}
+.clientCardActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}.clientCardActions .btn{font-size:9px;padding:7px 9px;text-decoration:none}
+.clientCardFoot{display:flex;justify-content:space-between;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid #edf1ee;font-size:8px;color:var(--muted)}.tiny{padding:7px 9px;font-size:11px}.search{width:min(420px,100%);padding:11px;border:1px solid var(--line);border-radius:10px}
 .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.empty{padding:35px;text-align:center;color:var(--muted)}
 .modal{position:fixed;inset:0;background:rgba(7,25,17,.58);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}.modal.show{display:flex}.modalbox{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px}.mh{display:flex;align-items:center;padding:17px;border-bottom:1px solid var(--line)}.mb{padding:18px}
 .form{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.field label{display:block;font-size:11px;font-weight:900;color:#65766d;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px}.full{grid-column:1/-1}
@@ -562,7 +573,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .tablebox{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}.table{min-width:720px}.table th,.table td{padding:9px 8px;font-size:10px}.table th{font-size:9px}
  .actions{gap:4px}.tiny{padding:6px 7px;font-size:9px}
  .modal{align-items:center;padding:12px}.modalbox{width:min(94vw,760px);max-height:90vh;border-radius:18px}
- .clientInfoGrid{grid-template-columns:1fr 1fr}.clientHero{padding:13px}.clientHero h2{font-size:17px}.clientStatus{padding:5px 8px}.mh{padding:14px}.mb{padding:14px}
+ .clientInfoGrid{grid-template-columns:1fr 1fr}.clientHero{padding:13px}.clientHero h2{font-size:17px}.clientStatus{padding:5px 8px}.clientCards{grid-template-columns:1fr}.mh{padding:14px}.mb{padding:14px}
  .form{grid-template-columns:1fr}.full{grid-column:auto}.field input,.field select,.field textarea{font-size:16px;padding:11px}
  .section{padding:13px}.miniItem{padding:9px}
 }
@@ -754,9 +765,35 @@ async function listPage(key){
  let cc=cfg[key],d=await api('/api/mobile/'+cc.api);
  let action='<button class="btn gold" onclick="openAdd(\''+cc.api+'\')">+ Add New</button>';
  let crmFilters=key==='crm'?'<div class="stagebar"><button class="stagebtn" onclick="crmFilter(\'all\')">All</button><button class="stagebtn" onclick="crmFilter(\'pending\')">Pending</button><button class="stagebtn" onclick="crmFilter(\'done\')">Done</button><button class="stagebtn" onclick="crmFilter(\'lost\')">Lost</button></div>':'';
- return '<div class="head"><div><h1>'+cc.title+'</h1><div class="muted">'+d.length+' records</div></div><div class="grow"></div>'+action+'</div>'+crmFilters+
- '<div class="toolbar"><input class="search" id="listSearch" placeholder="Search..." onkeydown="if(event.key===\'Enter\')searchPage(\''+key+'\',this.value)"></div>'+
- '<div class="card tablebox">'+tableHtml(key,d)+'</div>';
+ return '<div class="head"><div><h1>'+cc.title+'</h1><div class="muted">'+d.length+' saved clients</div></div><div class="grow"></div>'+action+'</div>'+crmFilters+
+ '<div class="toolbar"><input class="search" id="listSearch" placeholder="'+(key==='crm'?'Search client, phone, location...':'Search...')+'" oninput="'+(key==='crm'?'filterClientCards(this.value)':'')+'" onkeydown="if(event.key===\'Enter\'&&\''+key+'\'!==\'crm\')searchPage(\''+key+'\',this.value)"></div>'+
+ (key==='crm'?clientCardsHtml(d):'<div class="card tablebox">'+tableHtml(key,d)+'</div>');
+}
+
+function clientCardsHtml(d){
+ if(!d.length)return '<div class="empty">No clients saved yet.</div>';
+ let isAdmin=['administrator','admin'].includes(String(user?.role||'').toLowerCase());
+ return '<div class="clientCards">'+d.map(r=>{
+   let phone=String(r.phone||'');
+   let wa=phone.replace(/[^0-9]/g,'').replace(/^0/,'92');
+   let initials=String(r.name||'C').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
+   let search=[r.name,r.phone,r.ctype,r.location,r.stage,r.assigned,r.requirement].filter(Boolean).join(' ').toLowerCase();
+   return '<div class="clientCard" data-client-search="'+esc(search)+'" data-stage="'+esc(r.stage||'')+'">'+
+    '<div class="clientCardTop"><div class="clientAvatar">'+esc(initials)+'</div><div class="clientMain"><h3>'+esc(r.name||'Unnamed Client')+'</h3><div class="clientMeta">'+esc(r.ctype||'Client')+(r.location?' • '+esc(r.location):'')+'</div></div><span class="clientBadge">'+esc(r.stage||'New')+'</span></div>'+
+    '<div class="clientFacts"><div class="clientFact"><small>PHONE</small><b>'+esc(r.phone||'—')+'</b></div><div class="clientFact"><small>BUDGET</small><b>'+(r.budget?money(r.budget):'—')+'</b></div><div class="clientFact"><small>LOCATION</small><b>'+esc(r.location||'—')+'</b></div><div class="clientFact"><small>FOLLOW-UP</small><b>'+esc(r.followup||'—')+'</b></div></div>'+
+    (r.requirement?'<div class="clientRequirement" style="margin-top:9px"><small>REQUIREMENT</small><b>'+esc(r.requirement)+'</b></div>':'')+
+    '<div class="clientCardActions"><button class="btn dark" onclick="openClientView('+r.id+')">View</button>'+
+    (phone?'<a class="btn green" href="tel:'+esc(phone)+'">Call</a><a class="btn soft" href="https://wa.me/'+esc(wa)+'">WhatsApp</a>':'')+
+    '<button class="btn gold" onclick="showMatches('+r.id+',\''+esc(r.name||'Client').replace(/'/g,"&#39;")+'\')">Match</button>'+
+    '<button class="btn soft" onclick="setClientStage('+r.id+',\'Follow-up\')">Pending</button>'+
+    '<button class="btn green" onclick="setClientStage('+r.id+',\'Closed\')">Done</button>'+
+    (isAdmin?'<button class="btn" style="background:#fff0ee;color:#b42318" onclick="deleteRec(\'contacts\','+r.id+',\''+esc(r.name||'Client').replace(/'/g,"&#39;")+'\')">Delete</button>':'')+
+    '</div><div class="clientCardFoot"><span>Entered by: '+esc(r.created_by||'Legacy')+'</span><span>Updated: '+esc(r.updated_by||'—')+'</span></div></div>'
+ }).join('')+'</div>'
+}
+function filterClientCards(q){
+ q=String(q||'').toLowerCase().trim();
+ document.querySelectorAll('.clientCard').forEach(x=>x.style.display=!q||String(x.dataset.clientSearch||'').includes(q)?'':'none')
 }
 function tableHtml(key,d){
  let cc=cfg[key];
@@ -771,7 +808,7 @@ function tableHtml(key,d){
  '</div></td></tr>').join('')+'</tbody></table>';
 }
 function crmFilter(mode){
- document.querySelectorAll('.table tbody tr').forEach(tr=>{
+ document.querySelectorAll('.table tbody tr, .clientCard').forEach(tr=>{
    let s=(tr.dataset.stage||'').toLowerCase();
    let show=mode==='all'||(mode==='pending'&&!['closed','lost'].includes(s))||(mode==='done'&&s==='closed')||(mode==='lost'&&s==='lost');
    tr.style.display=show?'':'none';
