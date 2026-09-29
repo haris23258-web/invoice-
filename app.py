@@ -10,6 +10,15 @@ app=Flask(__name__)
 DATABASE_URL=os.getenv("DATABASE_URL","").strip()
 ADMIN_PASSWORD=os.getenv("DEEWARYN_ADMIN_PASSWORD","admin123")
 
+@app.after_request
+def no_cache_mobile(response):
+    if request.path.startswith("/mobile") or request.path.startswith("/api/mobile") or request.path.startswith("/f/") or request.path.startswith("/client-form/"):
+        response.headers["Cache-Control"]="no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"]="no-cache"
+        response.headers["Expires"]="0"
+        response.headers["X-Deewaryn-Version"]="2026-09-29-mobile-v2"
+    return response
+
 TABLES={
 "properties":["code","purpose","ptype","location","area","price","beds","baths","owner","phone","status","notes"],
 "contacts":["name","phone","email","ctype","budget","location","requirement","source","stage","assigned","followup","notes"],
