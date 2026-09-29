@@ -517,20 +517,15 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .clientRequirement small{display:block;font-size:9px;color:#8a6b16;margin-bottom:4px}.clientRequirement b{font-size:12px;line-height:1.5}
 .clientViewActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 .clientViewActions .btn{text-align:center;text-decoration:none}
-.clientCards{display:grid;grid-template-columns:1fr;gap:9px}
-.clientCard{background:#fff;border:1px solid #e2e9e5;border-radius:14px;padding:11px 12px;box-shadow:0 4px 12px rgba(17,37,29,.035);transition:.15s}
-.clientCard:hover{border-color:#c8ddd1;box-shadow:0 8px 18px rgba(17,37,29,.06)}
-.clientCardTop{display:flex;align-items:center;gap:10px}
-.clientAvatar{width:38px;height:38px;border-radius:12px;background:#edf7f1;color:var(--g2);display:grid;place-items:center;font-weight:900;flex:0 0 38px}
-.clientMain{min-width:0;flex:1}.clientMain h3{margin:0;font-size:14px}.clientMeta{margin-top:2px;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.clientBadge{padding:5px 8px;border-radius:999px;background:#eef7f2;color:#0c6e46;font-size:9px;font-weight:900;flex:0 0 auto}
-.clientSimpleRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:9px}
-.clientSimpleItem{background:#f8fbf9;border-radius:10px;padding:7px 8px;min-width:0}
-.clientSimpleItem small{display:block;font-size:8px;color:var(--muted);margin-bottom:2px}
-.clientSimpleItem b{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.clientCardBottom{display:flex;align-items:center;gap:7px;margin-top:9px}
-.clientViewBtn{margin-left:auto;min-width:74px}
-.clientCardBottom .muted{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny{padding:7px 9px;font-size:11px}.search{width:min(420px,100%);padding:11px;border:1px solid var(--line);border-radius:10px}
+.clientList{display:flex;flex-direction:column;gap:7px}
+.clientRow{display:grid;grid-template-columns:minmax(220px,1.4fr) minmax(150px,1fr) minmax(130px,.8fr) auto;align-items:center;gap:12px;background:#fff;border:1px solid #e5ebe7;border-radius:12px;padding:10px 12px;transition:.15s}
+.clientRow:hover{border-color:#c9dbd1;background:#fbfdfc}
+.clientIdentity{display:flex;align-items:center;gap:10px;min-width:0}
+.clientAvatar{width:36px;height:36px;border-radius:50%;background:#edf7f1;color:var(--g2);display:grid;place-items:center;font-weight:900;flex:0 0 36px;font-size:11px}
+.clientIdentityText{min-width:0}.clientIdentityText b{display:block;font-size:13px}.clientIdentityText span{display:block;font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.clientCol small{display:block;font-size:8px;color:var(--muted);margin-bottom:2px}.clientCol b{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clientStatusPill{display:inline-block;padding:5px 8px;border-radius:999px;background:#eef7f2;color:#0c6e46;font-size:9px;font-weight:900}
+.clientOpenBtn{min-width:68px}.tiny{padding:7px 9px;font-size:11px}.search{width:min(420px,100%);padding:11px;border:1px solid var(--line);border-radius:10px}
 .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.empty{padding:35px;text-align:center;color:var(--muted)}
 .modal{position:fixed;inset:0;background:rgba(7,25,17,.58);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}.modal.show{display:flex}.modalbox{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px}.mh{display:flex;align-items:center;padding:17px;border-bottom:1px solid var(--line)}.mb{padding:18px}
 .form{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.field label{display:block;font-size:11px;font-weight:900;color:#65766d;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px}.full{grid-column:1/-1}
@@ -576,7 +571,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .tablebox{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}.table{min-width:720px}.table th,.table td{padding:9px 8px;font-size:10px}.table th{font-size:9px}
  .actions{gap:4px}.tiny{padding:6px 7px;font-size:9px}
  .modal{align-items:center;padding:12px}.modalbox{width:min(94vw,760px);max-height:90vh;border-radius:18px}
- .clientInfoGrid{grid-template-columns:1fr 1fr}.clientHero{padding:13px}.clientHero h2{font-size:17px}.clientStatus{padding:5px 8px}.clientCards{grid-template-columns:1fr}.clientSimpleRow{grid-template-columns:1fr 1fr 1fr}.mh{padding:14px}.mb{padding:14px}
+ .clientInfoGrid{grid-template-columns:1fr 1fr}.clientHero{padding:13px}.clientHero h2{font-size:17px}.clientStatus{padding:5px 8px}.clientRow{grid-template-columns:1fr auto;gap:8px}.clientRow .clientCol{display:none}.clientOpenBtn{min-width:62px}.mh{padding:14px}.mb{padding:14px}
  .form{grid-template-columns:1fr}.full{grid-column:auto}.field input,.field select,.field textarea{font-size:16px;padding:11px}
  .section{padding:13px}.miniItem{padding:9px}
 }
@@ -588,7 +583,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .dashHero h1{font-size:18px}.dashHero p{display:none}.heroProfit{min-width:78px}.heroProfit b{font-size:17px}
  .heroActions{display:grid;grid-template-columns:1fr 1fr}.heroActions .btn:last-child{grid-column:1/-1}
  .sectionTitle h3{font-size:13px}.sectionTitle span{font-size:8px}
- .table{min-width:640px}.clientInfoGrid{grid-template-columns:1fr}.clientViewActions{grid-template-columns:1fr 1fr}.clientSimpleRow{grid-template-columns:1fr 1fr}.clientSimpleItem:last-child{grid-column:1/-1}
+ .table{min-width:640px}.clientInfoGrid{grid-template-columns:1fr}.clientViewActions{grid-template-columns:1fr 1fr}.clientRow{padding:9px 10px;border-radius:11px}.clientAvatar{width:34px;height:34px;flex-basis:34px}.clientIdentityText b{font-size:12px}.clientIdentityText span{font-size:9px}.clientStatusPill{font-size:8px;padding:4px 6px}
 }
 </style></head><body><div id="app"></div><div id="modal" class="modal"></div>
 <script>
@@ -775,23 +770,20 @@ async function listPage(key){
 
 function clientCardsHtml(d){
  if(!d.length)return '<div class="empty">No clients saved yet.</div>';
- return '<div class="clientCards">'+d.map(r=>{
+ return '<div class="clientList">'+d.map(r=>{
    let initials=String(r.name||'C').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
    let search=[r.name,r.phone,r.ctype,r.location,r.stage,r.assigned,r.requirement].filter(Boolean).join(' ').toLowerCase();
-   return '<div class="clientCard" data-client-search="'+esc(search)+'" data-stage="'+esc(r.stage||'')+'" onclick="openClientView('+r.id+')" style="cursor:pointer">'+
-     '<div class="clientCardTop"><div class="clientAvatar">'+esc(initials)+'</div><div class="clientMain"><h3>'+esc(r.name||'Unnamed Client')+'</h3><div class="clientMeta">'+esc(r.ctype||'Client')+(r.location?' • '+esc(r.location):'')+'</div></div><span class="clientBadge">'+esc(r.stage||'New')+'</span></div>'+
-     '<div class="clientSimpleRow">'+
-       '<div class="clientSimpleItem"><small>Phone</small><b>'+esc(r.phone||'—')+'</b></div>'+
-       '<div class="clientSimpleItem"><small>Budget</small><b>'+(r.budget?money(r.budget):'—')+'</b></div>'+
-       '<div class="clientSimpleItem"><small>Follow-up</small><b>'+esc(r.followup||'—')+'</b></div>'+
-     '</div>'+
-     '<div class="clientCardBottom"><div class="muted">'+esc(r.requirement||'No requirement added')+'</div><button class="btn green tiny clientViewBtn" onclick="event.stopPropagation();openClientView('+r.id+')">Open</button></div>'+
+   return '<div class="clientRow" data-client-search="'+esc(search)+'" data-stage="'+esc(r.stage||'')+'">'+
+     '<div class="clientIdentity"><div class="clientAvatar">'+esc(initials)+'</div><div class="clientIdentityText"><b>'+esc(r.name||'Unnamed Client')+'</b><span>'+esc(r.ctype||'Client')+(r.location?' • '+esc(r.location):'')+'</span></div></div>'+
+     '<div class="clientCol"><small>PHONE</small><b>'+esc(r.phone||'—')+'</b></div>'+
+     '<div class="clientCol"><small>BUDGET</small><b>'+(r.budget?money(r.budget):'—')+'</b></div>'+
+     '<div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><span class="clientStatusPill">'+esc(r.stage||'New')+'</span><button class="btn green tiny clientOpenBtn" onclick="openClientView('+r.id+')">Open</button></div>'+
    '</div>'
  }).join('')+'</div>'
 }
 function filterClientCards(q){
  q=String(q||'').toLowerCase().trim();
- document.querySelectorAll('.clientCard').forEach(x=>x.style.display=!q||String(x.dataset.clientSearch||'').includes(q)?'':'none')
+ document.querySelectorAll('.clientRow').forEach(x=>x.style.display=!q||String(x.dataset.clientSearch||'').includes(q)?'':'none')
 }
 function tableHtml(key,d){
  let cc=cfg[key];
@@ -806,7 +798,7 @@ function tableHtml(key,d){
  '</div></td></tr>').join('')+'</tbody></table>';
 }
 function crmFilter(mode){
- document.querySelectorAll('.table tbody tr, .clientCard').forEach(tr=>{
+ document.querySelectorAll('.table tbody tr, .clientRow').forEach(tr=>{
    let s=(tr.dataset.stage||'').toLowerCase();
    let show=mode==='all'||(mode==='pending'&&!['closed','lost'].includes(s))||(mode==='done'&&s==='closed')||(mode==='lost'&&s==='lost');
    tr.style.display=show?'':'none';
