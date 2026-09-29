@@ -331,6 +331,9 @@ def public_client_form(token):
         portion=(f.get("portion") or "").strip()
         area=(f.get("area") or "").strip()
         beds=(f.get("beds") or "").strip()
+        baths=(f.get("baths") or "").strip()
+        parking=(f.get("parking") or "").strip()
+        condition=(f.get("condition") or "").strip()
         location=(f.get("location") or "").strip()
         extra=(f.get("extra") or "").strip()
         parts=[]
@@ -338,6 +341,9 @@ def public_client_form(token):
         if portion: parts.append(portion)
         if area: parts.append(area)
         if beds: parts.append(beds+" Bed")
+        if baths: parts.append(baths+" Bath")
+        if parking: parts.append(parking+" Parking")
+        if condition: parts.append(condition)
         if extra: parts.append(extra)
         requirement=" | ".join(parts)
         execute("""INSERT INTO contacts(name,phone,email,ctype,budget,location,requirement,source,stage,assigned,followup,notes,created,created_by)
@@ -397,16 +403,19 @@ def public_client_form(token):
     <div class="hero"><div class="brand">Dee<span>waryn</span></div><div style="color:#66776f;margin-top:4px">Rawalpindi & Islamabad Real Estate</div><div class="badge">Official Requirement Form • {ref}</div></div>
     <div class="body"><h2 style="margin:0 0 4px">Find your property</h2><p style="margin:0 0 18px;color:#718078">Just select a few options. It takes less than a minute.</p>
     <form method="post" onsubmit="cleanBudget()"><div class="grid">
-      <div><label>Name *</label><input name="name" required placeholder="Your name"></div>
-      <div><label>Phone / WhatsApp *</label><input name="phone" required inputmode="numeric" pattern="[0-9+ ]*" placeholder="03xx xxxxxxx"></div>
+      <div><label>Name *</label><input name="name" required autocomplete="name" placeholder="Your name"></div>
+      <div><label>Phone / WhatsApp *</label><input id="phone" name="phone" required type="tel" inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="03xx xxxxxxx" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,15)"></div>
       <div><label>Looking for</label><select name="ctype"><option>Buyer</option><option>Tenant</option><option>Investor</option></select></div>
-      <div><label>Budget (numbers only)</label><input id="budget" name="budget" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="35000000" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
-      <div class="full"><label>Location</label><input name="location" list="locations" autocomplete="off" placeholder="Start typing e.g. Scheme 3, Bahria, G-13"><datalist id="locations">{options}</datalist></div>
-      <div><label>Property type</label><select name="property_type"><option>House</option><option>Apartment</option><option>Plot</option><option>Commercial</option></select></div>
+      <div><label>Budget (PKR)</label><input id="budget" name="budget" type="text" inputmode="numeric" autocomplete="off" pattern="[0-9]*" placeholder="35000000" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div>
+      <div class="full"><label>Location</label><input name="location" list="locations" autocomplete="street-address" placeholder="Type e.g. Mumtaz, Scheme 3, Bahria, G-13"><datalist id="locations">{options}</datalist></div>
+      <div><label>Property type</label><select name="property_type"><option>House</option><option>Apartment</option><option>Plot</option><option>Commercial</option><option>Office</option><option>Shop</option><option>Farm House</option></select></div>
       <div><label>Portion</label><select name="portion"><option>Full House</option><option>Ground Portion</option><option>Upper Portion</option><option>Lower Portion</option><option>Not sure</option></select></div>
-      <div><label>Area / Marla</label><select name="area"><option>3 Marla</option><option>4 Marla</option><option>5 Marla</option><option>6 Marla</option><option>7 Marla</option><option>8 Marla</option><option>10 Marla</option><option>12 Marla</option><option>1 Kanal</option><option>2 Kanal</option><option>Other</option></select></div>
-      <div><label>Bedrooms</label><select name="beds"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7+</option></select></div>
-      <div class="full"><label>Extra requirement (optional)</label><textarea name="extra" placeholder="Corner, park facing, basement, double unit, parking, new house, etc."></textarea></div>
+      <div><label>Area / Size</label><select name="area"><option>2.5 Marla</option><option>3 Marla</option><option>4 Marla</option><option>5 Marla</option><option>6 Marla</option><option>7 Marla</option><option>8 Marla</option><option>10 Marla</option><option>12 Marla</option><option>14 Marla</option><option>1 Kanal</option><option>2 Kanal</option><option>Other</option></select></div>
+      <div><label>Bedrooms</label><select name="beds"><option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7+</option></select></div>
+      <div><label>Bathrooms</label><select name="baths"><option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7+</option></select></div>
+      <div><label>Car Parking</label><select name="parking"><option value="">Any</option><option>1 Car</option><option>2 Cars</option><option>3 Cars</option><option>4+ Cars</option></select></div>
+      <div><label>Property condition</label><select name="condition"><option value="">Any</option><option>Brand New</option><option>Like New</option><option>Used / Good Condition</option><option>Need Renovation</option></select></div>
+      <div class="full"><label>Extra requirement (optional)</label><textarea name="extra" autocomplete="off" placeholder="Corner, park facing, basement, double unit, near main road, servant quarter, etc."></textarea></div>
     </div><button type="submit">Send My Requirement</button></form>
     <div class="note"><b>Privacy:</b> This form only collects your property requirement and contact details for Deewaryn. We never ask for passwords, PINs, OTPs or card details.</div>
     <div style="margin-top:14px;padding:14px;border:1px solid #dce8e1;border-radius:12px;background:#f8fbf9">
