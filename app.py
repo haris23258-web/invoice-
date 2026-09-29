@@ -517,17 +517,20 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .clientRequirement small{display:block;font-size:9px;color:#8a6b16;margin-bottom:4px}.clientRequirement b{font-size:12px;line-height:1.5}
 .clientViewActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 .clientViewActions .btn{text-align:center;text-decoration:none}
-.clientCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.clientCard{background:#fff;border:1px solid #e1e9e4;border-radius:17px;padding:14px;box-shadow:0 7px 20px rgba(17,37,29,.045);transition:.18s}
-.clientCard:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(17,37,29,.07);border-color:#c8ddd1}
-.clientCardTop{display:flex;align-items:flex-start;gap:10px}
-.clientAvatar{width:40px;height:40px;border-radius:12px;background:#edf7f1;color:var(--g2);display:grid;place-items:center;font-weight:900;flex:0 0 40px}
-.clientMain{min-width:0;flex:1}.clientMain h3{margin:0;font-size:15px}.clientMeta{margin-top:3px;font-size:10px;color:var(--muted)}
-.clientBadge{padding:5px 8px;border-radius:999px;background:#eef7f2;color:#0c6e46;font-size:9px;font-weight:900}
-.clientFacts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
-.clientFact{background:#f8fbf9;border-radius:11px;padding:8px}.clientFact small{display:block;font-size:8px;color:var(--muted);margin-bottom:2px}.clientFact b{font-size:11px;word-break:break-word}
-.clientCardActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}.clientCardActions .btn{font-size:9px;padding:7px 9px;text-decoration:none}
-.clientCardFoot{display:flex;justify-content:space-between;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid #edf1ee;font-size:8px;color:var(--muted)}.tiny{padding:7px 9px;font-size:11px}.search{width:min(420px,100%);padding:11px;border:1px solid var(--line);border-radius:10px}
+.clientCards{display:grid;grid-template-columns:1fr;gap:9px}
+.clientCard{background:#fff;border:1px solid #e2e9e5;border-radius:14px;padding:11px 12px;box-shadow:0 4px 12px rgba(17,37,29,.035);transition:.15s}
+.clientCard:hover{border-color:#c8ddd1;box-shadow:0 8px 18px rgba(17,37,29,.06)}
+.clientCardTop{display:flex;align-items:center;gap:10px}
+.clientAvatar{width:38px;height:38px;border-radius:12px;background:#edf7f1;color:var(--g2);display:grid;place-items:center;font-weight:900;flex:0 0 38px}
+.clientMain{min-width:0;flex:1}.clientMain h3{margin:0;font-size:14px}.clientMeta{margin-top:2px;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clientBadge{padding:5px 8px;border-radius:999px;background:#eef7f2;color:#0c6e46;font-size:9px;font-weight:900;flex:0 0 auto}
+.clientSimpleRow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:9px}
+.clientSimpleItem{background:#f8fbf9;border-radius:10px;padding:7px 8px;min-width:0}
+.clientSimpleItem small{display:block;font-size:8px;color:var(--muted);margin-bottom:2px}
+.clientSimpleItem b{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clientCardBottom{display:flex;align-items:center;gap:7px;margin-top:9px}
+.clientViewBtn{margin-left:auto;min-width:74px}
+.clientCardBottom .muted{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tiny{padding:7px 9px;font-size:11px}.search{width:min(420px,100%);padding:11px;border:1px solid var(--line);border-radius:10px}
 .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.empty{padding:35px;text-align:center;color:var(--muted)}
 .modal{position:fixed;inset:0;background:rgba(7,25,17,.58);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}.modal.show{display:flex}.modalbox{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px}.mh{display:flex;align-items:center;padding:17px;border-bottom:1px solid var(--line)}.mb{padding:18px}
 .form{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.field label{display:block;font-size:11px;font-weight:900;color:#65766d;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px}.full{grid-column:1/-1}
@@ -573,7 +576,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .tablebox{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}.table{min-width:720px}.table th,.table td{padding:9px 8px;font-size:10px}.table th{font-size:9px}
  .actions{gap:4px}.tiny{padding:6px 7px;font-size:9px}
  .modal{align-items:center;padding:12px}.modalbox{width:min(94vw,760px);max-height:90vh;border-radius:18px}
- .clientInfoGrid{grid-template-columns:1fr 1fr}.clientHero{padding:13px}.clientHero h2{font-size:17px}.clientStatus{padding:5px 8px}.clientCards{grid-template-columns:1fr}.mh{padding:14px}.mb{padding:14px}
+ .clientInfoGrid{grid-template-columns:1fr 1fr}.clientHero{padding:13px}.clientHero h2{font-size:17px}.clientStatus{padding:5px 8px}.clientCards{grid-template-columns:1fr}.clientSimpleRow{grid-template-columns:1fr 1fr 1fr}.mh{padding:14px}.mb{padding:14px}
  .form{grid-template-columns:1fr}.full{grid-column:auto}.field input,.field select,.field textarea{font-size:16px;padding:11px}
  .section{padding:13px}.miniItem{padding:9px}
 }
@@ -585,7 +588,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .dashHero h1{font-size:18px}.dashHero p{display:none}.heroProfit{min-width:78px}.heroProfit b{font-size:17px}
  .heroActions{display:grid;grid-template-columns:1fr 1fr}.heroActions .btn:last-child{grid-column:1/-1}
  .sectionTitle h3{font-size:13px}.sectionTitle span{font-size:8px}
- .table{min-width:640px}.clientInfoGrid{grid-template-columns:1fr}.clientViewActions{grid-template-columns:1fr 1fr}
+ .table{min-width:640px}.clientInfoGrid{grid-template-columns:1fr}.clientViewActions{grid-template-columns:1fr 1fr}.clientSimpleRow{grid-template-columns:1fr 1fr}.clientSimpleItem:last-child{grid-column:1/-1}
 }
 </style></head><body><div id="app"></div><div id="modal" class="modal"></div>
 <script>
@@ -772,23 +775,18 @@ async function listPage(key){
 
 function clientCardsHtml(d){
  if(!d.length)return '<div class="empty">No clients saved yet.</div>';
- let isAdmin=['administrator','admin'].includes(String(user?.role||'').toLowerCase());
  return '<div class="clientCards">'+d.map(r=>{
-   let phone=String(r.phone||'');
-   let wa=phone.replace(/[^0-9]/g,'').replace(/^0/,'92');
    let initials=String(r.name||'C').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
    let search=[r.name,r.phone,r.ctype,r.location,r.stage,r.assigned,r.requirement].filter(Boolean).join(' ').toLowerCase();
-   return '<div class="clientCard" data-client-search="'+esc(search)+'" data-stage="'+esc(r.stage||'')+'">'+
-    '<div class="clientCardTop"><div class="clientAvatar">'+esc(initials)+'</div><div class="clientMain"><h3>'+esc(r.name||'Unnamed Client')+'</h3><div class="clientMeta">'+esc(r.ctype||'Client')+(r.location?' • '+esc(r.location):'')+'</div></div><span class="clientBadge">'+esc(r.stage||'New')+'</span></div>'+
-    '<div class="clientFacts"><div class="clientFact"><small>PHONE</small><b>'+esc(r.phone||'—')+'</b></div><div class="clientFact"><small>BUDGET</small><b>'+(r.budget?money(r.budget):'—')+'</b></div><div class="clientFact"><small>LOCATION</small><b>'+esc(r.location||'—')+'</b></div><div class="clientFact"><small>FOLLOW-UP</small><b>'+esc(r.followup||'—')+'</b></div></div>'+
-    (r.requirement?'<div class="clientRequirement" style="margin-top:9px"><small>REQUIREMENT</small><b>'+esc(r.requirement)+'</b></div>':'')+
-    '<div class="clientCardActions"><button class="btn dark" onclick="openClientView('+r.id+')">View</button>'+
-    (phone?'<a class="btn green" href="tel:'+esc(phone)+'">Call</a><a class="btn soft" href="https://wa.me/'+esc(wa)+'">WhatsApp</a>':'')+
-    '<button class="btn gold" onclick="showMatches('+r.id+',\''+esc(r.name||'Client').replace(/'/g,"&#39;")+'\')">Match</button>'+
-    '<button class="btn soft" onclick="setClientStage('+r.id+',\'Follow-up\')">Pending</button>'+
-    '<button class="btn green" onclick="setClientStage('+r.id+',\'Closed\')">Done</button>'+
-    (isAdmin?'<button class="btn" style="background:#fff0ee;color:#b42318" onclick="deleteRec(\'contacts\','+r.id+',\''+esc(r.name||'Client').replace(/'/g,"&#39;")+'\')">Delete</button>':'')+
-    '</div><div class="clientCardFoot"><span>Entered by: '+esc(r.created_by||'Legacy')+'</span><span>Updated: '+esc(r.updated_by||'—')+'</span></div></div>'
+   return '<div class="clientCard" data-client-search="'+esc(search)+'" data-stage="'+esc(r.stage||'')+'" onclick="openClientView('+r.id+')" style="cursor:pointer">'+
+     '<div class="clientCardTop"><div class="clientAvatar">'+esc(initials)+'</div><div class="clientMain"><h3>'+esc(r.name||'Unnamed Client')+'</h3><div class="clientMeta">'+esc(r.ctype||'Client')+(r.location?' • '+esc(r.location):'')+'</div></div><span class="clientBadge">'+esc(r.stage||'New')+'</span></div>'+
+     '<div class="clientSimpleRow">'+
+       '<div class="clientSimpleItem"><small>Phone</small><b>'+esc(r.phone||'—')+'</b></div>'+
+       '<div class="clientSimpleItem"><small>Budget</small><b>'+(r.budget?money(r.budget):'—')+'</b></div>'+
+       '<div class="clientSimpleItem"><small>Follow-up</small><b>'+esc(r.followup||'—')+'</b></div>'+
+     '</div>'+
+     '<div class="clientCardBottom"><div class="muted">'+esc(r.requirement||'No requirement added')+'</div><button class="btn green tiny clientViewBtn" onclick="event.stopPropagation();openClientView('+r.id+')">Open</button></div>'+
+   '</div>'
  }).join('')+'</div>'
 }
 function filterClientCards(q){
