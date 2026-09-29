@@ -645,7 +645,20 @@ const cfg={
  staff:{api:'employees',title:'Staff Management',primary:'name',cols:['name','role','phone','salary','visits','calls','properties','deals','expense','status']}
 };
 const fields={
- contacts:[['name','Client Name'],['phone','Phone'],['email','Email'],['ctype','Client Type'],['budget','Budget','number'],['location','Location'],['requirement','Requirement','textarea'],['source','Source'],['stage','Stage'],['assigned','Assigned'],['followup','Follow-up','date'],['notes','Notes','textarea']],
+ contacts:[
+ ['name','Client Name'],
+ ['phone','Phone / WhatsApp','tel'],
+ ['email','Email','email'],
+ ['ctype','Client Type','select',['Buyer','Tenant','Seller','Landlord','Investor']],
+ ['budget','Budget','number'],
+ ['location','Preferred Location','location'],
+ ['requirement','Requirement','clientreq'],
+ ['source','Source','select',['Walk-in','WhatsApp','Website','Referral','Facebook','Instagram','TikTok','YouTube','Zameen','Other']],
+ ['stage','Stage','select',['New','Follow-up','Visit','Negotiation','Closed','Lost']],
+ ['assigned','Assigned To','staffselect'],
+ ['followup','Next Follow-up','date'],
+ ['notes','Notes','textarea']
+],
  properties:[
  ['code','Property Code'],
  ['purpose','Purpose','select',['Sale','Rent']],
@@ -698,8 +711,29 @@ function fieldControl(prefix,f,value=''){
  if(t==='textarea')return '<textarea id="'+id+'">'+v+'</textarea>';
  if(t==='select')return '<select id="'+id+'"><option value="">Select '+esc(l)+'</option>'+opts.map(o=>'<option value="'+esc(o)+'" '+(String(value??'')===String(o)?'selected':'')+'>'+esc(o)+'</option>').join('')+'</select>';
  if(t==='location')return '<input id="'+id+'" type="text" list="propertyLocationList" autocomplete="off" placeholder="Type area e.g. Mumtaz, Scheme 3, Bahria" value="'+v+'"><datalist id="propertyLocationList">'+propertyLocations.map(x=>'<option value="'+esc(x)+'"></option>').join('')+'</datalist>';
+ if(t==='clientreq')return '<div><select id="'+id+'_ptype" onchange="syncClientReq(\''+prefix+'\')"><option value="">Property Type</option><option>Full House</option><option>Ground Portion</option><option>Upper Portion</option><option>Lower Portion</option><option>Apartment</option><option>Plot</option><option>Commercial</option><option>Office</option><option>Shop</option></select><div style="height:6px"></div><select id="'+id+'_area" onchange="syncClientReq(\''+prefix+'\')"><option value="">Area / Size</option><option>3 Marla</option><option>4 Marla</option><option>5 Marla</option><option>6 Marla</option><option>7 Marla</option><option>8 Marla</option><option>10 Marla</option><option>12 Marla</option><option>1 Kanal</option><option>2 Kanal</option></select><div style="height:6px"></div><select id="'+id+'_beds" onchange="syncClientReq(\''+prefix+'\')"><option value="">Beds</option><option>1 Bed</option><option>2 Bed</option><option>3 Bed</option><option>4 Bed</option><option>5 Bed</option><option>6 Bed</option><option>7+ Bed</option></select><div style="height:6px"></div><textarea id="'+id+'" placeholder="Extra requirement">'+v+'</textarea></div>';
+ if(t==='staffselect')return '<input id="'+id+'" type="text" list="staffList" autocomplete="off" placeholder="Select / type staff" value="'+v+'"><datalist id="staffList"></datalist>';
  if(t==='number')return '<input id="'+id+'" type="number" inputmode="numeric" min="0" value="'+v+'">';
  return '<input id="'+id+'" type="'+t+'" value="'+v+'">';
+}
+
+function syncClientReq(prefix){
+ let base=prefix+'_requirement';
+ let p=document.getElementById(base+'_ptype')?.value||'';
+ let a=document.getElementById(base+'_area')?.value||'';
+ let b=document.getElementById(base+'_beds')?.value||'';
+ let t=document.getElementById(base);
+ if(!t)return;
+ let extra=t.dataset.extra||'';
+ let parts=[p,a,b,extra].filter(Boolean);
+ t.value=parts.join(' | ');
+}
+async function fillStaffList(){
+ try{
+  let rows=await api('/api/mobile/staff');
+  let dl=document.getElementById('staffList');
+  if(dl)dl.innerHTML=rows.filter(x=>Number(x.active)!==0).map(x=>'<option value="'+esc(x.name)+'"></option>').join('');
+ }catch(e){}
 }
 function fmt(k,v){if(v===null||v==='')return '—';if(['price','budget','deal_value','commission','salary','expense','amount','monthly_rent','security','contract','spent','estimate'].includes(k))return money(v);if(['status','stage','priority','purpose','etype'].includes(k))return '<span class="chip">'+esc(v)+'</span>';return esc(v)}
 async function listPage(key){
@@ -741,7 +775,7 @@ function openAdd(apiName){
  modal.innerHTML='<div class="modalbox"><div class="mh"><div><h2 style="margin:0">Add '+apiName.replace(/_/g,' ')+'</h2>'+(apiName==='properties'?'<div class="muted">Purpose, type, location, area and property details</div>':'')+'</div><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb"><div class="form">'+
  fs.map(f=>'<div class="field '+(f[2]==='textarea'||f[2]==='location'?'full':'')+'"><label>'+f[1]+'</label>'+fieldControl('f',f,'')+'</div>').join('')+
  '</div><div style="text-align:right;margin-top:14px"><button class="btn green" onclick="saveRec(\''+apiName+'\')">Save</button></div></div></div>';
- modal.classList.add('show')
+ modal.classList.add('show');fillStaffList()
 }
 function closeM(){modal.classList.remove('show')}
 async function openEdit(apiName,id){
@@ -750,13 +784,36 @@ async function openEdit(apiName,id){
  modal.innerHTML='<div class="modalbox"><div class="mh"><h2 style="margin:0">Edit '+apiName.replace(/_/g,' ')+'</h2><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb"><div class="form">'+
  fs.map(f=>'<div class="field '+(f[2]==='textarea'||f[2]==='location'?'full':'')+'"><label>'+f[1]+'</label>'+fieldControl('e',f,row[f[0]]??'')+'</div>').join('')+
  '</div><div style="text-align:right;margin-top:14px"><button class="btn green" onclick="saveEdit(\''+apiName+'\','+id+')">Save Changes</button></div></div></div>';
- modal.classList.add('show')
+ modal.classList.add('show');fillStaffList()
 }
 async function saveEdit(apiName,id){
- let o={};(fields[apiName]||[]).forEach(f=>{let e=document.getElementById('e_'+f[0]);if(e)o[f[0]]=e.value});
+ let o={};
+ (fields[apiName]||[]).forEach(f=>{
+   let e=document.getElementById('e_'+f[0]);
+   if(f[2]==='clientreq'&&e){
+     let p=document.getElementById('e_'+f[0]+'_ptype')?.value||'';
+     let a=document.getElementById('e_'+f[0]+'_area')?.value||'';
+     let b=document.getElementById('e_'+f[0]+'_beds')?.value||'';
+     let extra=(e.value||'').split(' | ').filter(x=>![p,a,b].includes(x)).join(' | ');
+     o[f[0]]=[p,a,b,extra].filter(Boolean).join(' | ');
+   } else if(e)o[f[0]]=e.value;
+ });
  await api('/api/mobile/'+apiName+'/'+id,{method:'PATCH',body:JSON.stringify(o)});closeM();render()
 }
-async function saveRec(apiName){let o={};(fields[apiName]||[]).forEach(f=>{let e=document.getElementById('f_'+f[0]);if(e&&e.value!=='')o[f[0]]=e.value});await api('/api/mobile/'+apiName,{method:'POST',body:JSON.stringify(o)});closeM();render()}
+async function saveRec(apiName){
+ let o={};
+ (fields[apiName]||[]).forEach(f=>{
+   let e=document.getElementById('f_'+f[0]);
+   if(f[2]==='clientreq'&&e){
+     let p=document.getElementById('f_'+f[0]+'_ptype')?.value||'';
+     let a=document.getElementById('f_'+f[0]+'_area')?.value||'';
+     let b=document.getElementById('f_'+f[0]+'_beds')?.value||'';
+     let extra=(e.value||'').split(' | ').filter(x=>![p,a,b].includes(x)).join(' | ');
+     o[f[0]]=[p,a,b,extra].filter(Boolean).join(' | ');
+   } else if(e&&e.value!=='') o[f[0]]=e.value;
+ });
+ await api('/api/mobile/'+apiName,{method:'POST',body:JSON.stringify(o)});closeM();render()
+}
 async function userIdsPage(){
  let rows=await api('/api/mobile/user-accounts');
  return '<div class="head"><div><h1>Staff Login IDs</h1><div class="muted">Create and control a separate login for every staff member.</div></div><div class="grow"></div><button class="btn gold" onclick="openUserCreate()">+ Create Staff ID</button></div>'+
