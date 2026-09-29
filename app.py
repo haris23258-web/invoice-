@@ -503,7 +503,20 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .cols2{grid-template-columns:1.3fr .7fr}.section{padding:17px}.section h3{margin:0 0 12px}.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.quick button{padding:15px;border:1px solid var(--line);border-radius:13px;background:#fff;font-weight:800;cursor:pointer}
 .tablebox{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:900px}.table th,.table td{padding:12px;border-bottom:1px solid var(--line);text-align:left;font-size:12px}.table th{font-size:10px;text-transform:uppercase;color:#718078;background:#f8faf9}
 .chip{display:inline-block;padding:5px 8px;border-radius:999px;background:#eef5f1;color:#4f655a;font-weight:800;font-size:10px}
-.actions{display:flex;gap:6px;flex-wrap:wrap}.tiny{padding:7px 9px;font-size:11px}.search{width:min(420px,100%);padding:11px;border:1px solid var(--line);border-radius:10px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.clientLink{border:0;background:transparent;padding:0;color:var(--g2);font-weight:900;cursor:pointer;text-align:left;font-size:inherit}
+.clientView{display:grid;gap:12px}
+.clientHero{background:linear-gradient(135deg,#0d3b29,#15553a);color:#fff;border-radius:18px;padding:16px;display:flex;align-items:center;gap:12px}
+.clientAvatarBig{width:48px;height:48px;border-radius:15px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:18px;font-weight:900;flex:0 0 48px}
+.clientHero h2{margin:0;font-size:20px}.clientHero .meta{margin-top:4px;font-size:11px;color:#d9eee4}
+.clientStatus{margin-left:auto;background:#fff;color:#15553a;border-radius:999px;padding:6px 10px;font-size:10px;font-weight:900}
+.clientInfoGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.clientInfo{background:#f8fbf9;border:1px solid #e3ebe6;border-radius:13px;padding:10px}
+.clientInfo small{display:block;color:var(--muted);font-size:9px;margin-bottom:3px}.clientInfo b{font-size:12px;word-break:break-word}
+.clientRequirement{background:#fff9eb;border:1px solid #f1dfaa;border-radius:13px;padding:12px}
+.clientRequirement small{display:block;font-size:9px;color:#8a6b16;margin-bottom:4px}.clientRequirement b{font-size:12px;line-height:1.5}
+.clientViewActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.clientViewActions .btn{text-align:center;text-decoration:none}.tiny{padding:7px 9px;font-size:11px}.search{width:min(420px,100%);padding:11px;border:1px solid var(--line);border-radius:10px}
 .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.empty{padding:35px;text-align:center;color:var(--muted)}
 .modal{position:fixed;inset:0;background:rgba(7,25,17,.58);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}.modal.show{display:flex}.modalbox{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px}.mh{display:flex;align-items:center;padding:17px;border-bottom:1px solid var(--line)}.mb{padding:18px}
 .form{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}.field label{display:block;font-size:11px;font-weight:900;color:#65766d;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px}.full{grid-column:1/-1}
@@ -548,7 +561,8 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .toolbar{display:grid;grid-template-columns:1fr auto;gap:7px}.search{width:100%;min-width:0}
  .tablebox{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}.table{min-width:720px}.table th,.table td{padding:9px 8px;font-size:10px}.table th{font-size:9px}
  .actions{gap:4px}.tiny{padding:6px 7px;font-size:9px}
- .modal{align-items:center;padding:12px}.modalbox{width:min(94vw,760px);max-height:90vh;border-radius:18px}.mh{padding:14px}.mb{padding:14px}
+ .modal{align-items:center;padding:12px}.modalbox{width:min(94vw,760px);max-height:90vh;border-radius:18px}
+ .clientInfoGrid{grid-template-columns:1fr 1fr}.clientHero{padding:13px}.clientHero h2{font-size:17px}.clientStatus{padding:5px 8px}.mh{padding:14px}.mb{padding:14px}
  .form{grid-template-columns:1fr}.full{grid-column:auto}.field input,.field select,.field textarea{font-size:16px;padding:11px}
  .section{padding:13px}.miniItem{padding:9px}
 }
@@ -560,7 +574,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .dashHero h1{font-size:18px}.dashHero p{display:none}.heroProfit{min-width:78px}.heroProfit b{font-size:17px}
  .heroActions{display:grid;grid-template-columns:1fr 1fr}.heroActions .btn:last-child{grid-column:1/-1}
  .sectionTitle h3{font-size:13px}.sectionTitle span{font-size:8px}
- .table{min-width:640px}
+ .table{min-width:640px}.clientInfoGrid{grid-template-columns:1fr}.clientViewActions{grid-template-columns:1fr 1fr}
 }
 </style></head><body><div id="app"></div><div id="modal" class="modal"></div>
 <script>
@@ -749,8 +763,8 @@ function tableHtml(key,d){
  if(!d.length)return '<div class="empty">No records yet.</div>';
  let isAdmin=['administrator','admin'].includes(String(user?.role||'').toLowerCase());
  return '<table class="table"><thead><tr>'+cc.cols.map(x=>'<th>'+x.replace(/_/g,' ')+'</th>').join('')+'<th>Entered By</th><th>Updated By</th><th>Actions</th></tr></thead><tbody>'+
- d.map(r=>'<tr data-stage="'+esc(r.stage||r.status||'')+'">'+cc.cols.map(x=>'<td>'+fmt(x,r[x])+'</td>').join('')+'<td><b>'+esc(r.created_by||'Legacy')+'</b></td><td>'+esc(r.updated_by||'—')+'</td><td><div class="actions">'+
- (key==='crm'?(r.phone?'<a class="btn green tiny" href="tel:'+esc(r.phone)+'">Call</a><a class="btn soft tiny" href="https://wa.me/'+esc(String(r.phone).replace(/[^0-9]/g,'').replace(/^0/,'92'))+'">WhatsApp</a>':'')+
+ d.map(r=>'<tr data-stage="'+esc(r.stage||r.status||'')+'">'+cc.cols.map(x=>'<td>'+(key==='crm'&&x==='name'?'<button class="clientLink" onclick="openClientView('+r.id+')">'+esc(r.name||'Unnamed Client')+'</button>':fmt(x,r[x]))+'</td>').join('')+'<td><b>'+esc(r.created_by||'Legacy')+'</b></td><td>'+esc(r.updated_by||'—')+'</td><td><div class="actions">'+
+ (key==='crm'?'<button class="btn dark tiny" onclick="openClientView('+r.id+')">View</button>'+(r.phone?'<a class="btn green tiny" href="tel:'+esc(r.phone)+'">Call</a><a class="btn soft tiny" href="https://wa.me/'+esc(String(r.phone).replace(/[^0-9]/g,'').replace(/^0/,'92'))+'">WhatsApp</a>':'')+
  '<button class="btn dark tiny" onclick="openEdit(\'contacts\','+r.id+')">Edit</button><button class="btn soft tiny" onclick="setClientStage('+r.id+',\'Follow-up\')">Pending</button><button class="btn green tiny" onclick="setClientStage('+r.id+',\'Closed\')">Done</button><button class="btn gold tiny" onclick="showMatches('+r.id+',\''+esc(r.name).replace(/'/g,"&#39;")+'\')">Match</button>'
  :'<button class="btn dark tiny" onclick="openEdit(\''+cc.api+'\','+r.id+')">Edit</button>')+
  (isAdmin?'<button class="btn tiny" style="background:#fff0ee;color:#b42318" onclick="deleteRec(\''+cc.api+'\','+r.id+',\''+esc(String(r[cc.primary]||('Record #'+r.id))).replace(/'/g,"&#39;")+'\')">Delete</button>':'')+
@@ -762,6 +776,35 @@ function crmFilter(mode){
    let show=mode==='all'||(mode==='pending'&&!['closed','lost'].includes(s))||(mode==='done'&&s==='closed')||(mode==='lost'&&s==='lost');
    tr.style.display=show?'':'none';
  });
+}
+
+async function openClientView(id){
+ let rows=await api('/api/mobile/contacts');
+ let r=rows.find(x=>Number(x.id)===Number(id));
+ if(!r)return alert('Client not found');
+ let phone=String(r.phone||'');
+ let wa=phone.replace(/[^0-9]/g,'').replace(/^0/,'92');
+ let initials=String(r.name||'C').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
+ let info=(label,val)=>'<div class="clientInfo"><small>'+label+'</small><b>'+esc(val||'—')+'</b></div>';
+ modal.innerHTML='<div class="modalbox"><div class="mh"><div><b>Saved Client</b><div class="muted">Complete client details</div></div><div class="grow"></div><button class="btn soft" onclick="closeM()">Close</button></div><div class="mb clientView">'+
+ '<div class="clientHero"><div class="clientAvatarBig">'+esc(initials)+'</div><div class="grow"><h2>'+esc(r.name||'Unnamed Client')+'</h2><div class="meta">'+esc(r.ctype||'Client')+(r.location?' • '+esc(r.location):'')+'</div></div><div class="clientStatus">'+esc(r.stage||'New')+'</div></div>'+
+ '<div class="clientInfoGrid">'+
+ info('Phone / WhatsApp',r.phone)+info('Budget',r.budget?money(r.budget):'—')+
+ info('Preferred Location',r.location)+info('Client Type',r.ctype)+
+ info('Source',r.source)+info('Assigned To',r.assigned)+
+ info('Next Follow-up',r.followup)+info('Email',r.email)+
+ '</div>'+
+ '<div class="clientRequirement"><small>PROPERTY REQUIREMENT</small><b>'+esc(r.requirement||'No requirement added yet.')+'</b></div>'+
+ (r.notes?'<div class="clientInfo"><small>NOTES</small><b>'+esc(r.notes)+'</b></div>':'')+
+ '<div class="clientInfoGrid">'+info('Entered By',r.created_by||'Legacy')+info('Updated By',r.updated_by||'—')+'</div>'+
+ '<div class="clientViewActions">'+
+ (phone?'<a class="btn green" href="tel:'+esc(phone)+'">Call Client</a><a class="btn soft" href="https://wa.me/'+esc(wa)+'">WhatsApp</a>':'')+
+ '<button class="btn dark" onclick="openEdit(\'contacts\','+r.id+')">Edit Client</button>'+
+ '<button class="btn gold" onclick="showMatches('+r.id+',\''+esc(r.name||'Client').replace(/'/g,"&#39;")+'\')">Property Match</button>'+
+ '<button class="btn soft" onclick="setClientStage('+r.id+',\'Follow-up\');closeM()">Mark Pending</button>'+
+ '<button class="btn green" onclick="setClientStage('+r.id+',\'Closed\');closeM()">Mark Done</button>'+
+ '</div></div></div>';
+ modal.classList.add('show')
 }
 async function setClientStage(id,stage){await api('/api/mobile/contacts/'+id,{method:'PATCH',body:JSON.stringify({stage})});render()}
 async function deleteRec(apiName,id,label){
