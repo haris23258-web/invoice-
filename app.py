@@ -496,6 +496,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .dashHero{position:relative;overflow:hidden;background:radial-gradient(circle at 85% 15%,rgba(213,161,42,.22),transparent 28%),linear-gradient(135deg,#071f16 0%,#0a3a28 58%,#0d6844 100%);color:white;border-radius:26px;padding:30px;box-shadow:0 24px 60px rgba(8,39,26,.22);animation:rise .45s ease both;border:1px solid rgba(255,255,255,.06)}
 .dashHero:after{content:"";position:absolute;inset:-30% auto -30% -30%;width:35%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);transform:skewX(-20deg);animation:sheen 7s linear infinite}
 .dashHero h1{margin:0;font-size:32px}.dashHero p{margin:7px 0 0;color:#d6e7df;max-width:760px;line-height:1.5}.heroActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.heroSummary{display:flex;gap:18px;align-items:center}.heroEyebrow{font-size:11px;letter-spacing:1.4px;font-weight:900;color:#cfe4d9}.heroProfit{min-width:170px;text-align:right}.heroProfit span{display:block;font-size:11px;color:#cfe4d9}.heroProfit b{display:block;font-size:28px;margin-top:3px}
 .dashSection{margin-top:17px}.sectionTitle{display:flex;align-items:center;gap:9px;margin-bottom:10px}.sectionTitle h3{margin:0;font-size:15px}.sectionTitle span{font-size:10px;background:#eaf6ef;color:var(--g2);padding:5px 8px;border-radius:999px;font-weight:900}
 .categoryGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .categoryCard{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff,#fbfdfc);border:1px solid #e3ebe6;border-radius:14px;padding:10px 11px;min-height:86px;cursor:pointer;transition:.2s;animation:rise .32s ease both;box-shadow:0 5px 15px rgba(17,37,29,.04)}
@@ -509,8 +510,8 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 @media(min-width:1350px){.categoryGrid{grid-template-columns:repeat(5,minmax(0,1fr))}}@media(max-width:1200px){.categoryGrid{grid-template-columns:repeat(3,1fr)}}@media(max-width:650px){.categoryGrid{grid-template-columns:1fr}.categoryCard{min-height:96px}}
 @media(max-width:1000px){
  .shell{grid-template-columns:1fr}
- .top{height:auto;min-height:64px;padding:10px 12px;gap:8px;flex-wrap:nowrap}
- .brand{font-size:20px}.sub{font-size:10px}.user{font-size:10px;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .top{height:auto;min-height:56px;padding:calc(6px + env(safe-area-inset-top)) 10px 6px;gap:7px;flex-wrap:nowrap}
+ .brand{font-size:17px}.sub{font-size:9px;line-height:1.1}.user{font-size:9px;max-width:85px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
  .top .btn{padding:8px 10px;font-size:11px}.menuBtn{display:inline-flex;align-items:center;justify-content:center;font-size:18px}
  .side{position:fixed;left:0;top:0;bottom:0;width:min(82vw,300px);height:100vh;z-index:60;padding:14px;background:linear-gradient(180deg,#f9fbfa,#eef5f1);transform:translateX(-105%);transition:transform .26s ease;overflow-y:auto;box-shadow:18px 0 45px rgba(8,39,26,.20);border-right:1px solid #dce8e1}
  .side.open{transform:translateX(0)}
@@ -520,7 +521,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .menuOverlay{position:fixed;inset:0;background:rgba(4,20,13,.46);z-index:55;display:none}.menuOverlay.show{display:block}
  .main{padding:12px 10px 24px;overflow-x:hidden}
  .head{align-items:flex-start;flex-wrap:wrap}.head h1{font-size:21px}.head>.grow{display:none}.head .btn{font-size:11px;padding:8px 10px}
- .dashHero{padding:18px;border-radius:18px}.dashHero h1{font-size:24px}.dashHero p{font-size:12px}.heroActions{gap:6px}.heroActions .btn{font-size:11px;padding:8px 10px}
+ .dashHero{padding:14px;border-radius:16px}.dashHero h1{font-size:20px;line-height:1.15}.dashHero p{font-size:10px;line-height:1.35;max-width:none;margin-top:5px}.heroSummary{gap:10px;align-items:flex-start}.heroEyebrow{font-size:8px;letter-spacing:.9px}.heroProfit{min-width:92px;text-align:right}.heroProfit span{font-size:9px}.heroProfit b{font-size:19px}.heroActions{gap:5px;margin-top:11px}.heroActions .btn{font-size:10px;padding:7px 8px}
  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kpi{padding:12px}.kpi b{font-size:18px}.kpi small{font-size:9px}
  .cols2{grid-template-columns:1fr}.finrow{grid-template-columns:1fr 1fr 1fr;gap:7px}
  .categoryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.categoryCard{min-height:82px;padding:9px}.catIcon{width:28px;height:28px;flex-basis:28px}.categoryCard b{font-size:12px}.categoryCard small{font-size:9px}.categoryCard strong{font-size:16px}.catArrow{width:24px;height:24px}
@@ -537,7 +538,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .categoryGrid{grid-template-columns:1fr 1fr}.categoryCard{min-height:78px;padding:8px}
  .categoryCard small{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
  .kpis{grid-template-columns:1fr 1fr}.finrow{grid-template-columns:1fr}
- .dashHero h1{font-size:22px}.dashHero p{font-size:11px}
+ .dashHero h1{font-size:18px}.dashHero p{display:none}.heroProfit{min-width:78px}.heroProfit b{font-size:17px}
  .heroActions{display:grid;grid-template-columns:1fr 1fr}.heroActions .btn:last-child{grid-column:1/-1}
  .sectionTitle h3{font-size:13px}.sectionTitle span{font-size:8px}
  .table{min-width:640px}
@@ -602,7 +603,7 @@ async function dashboard(){
   ['projects','PJ','Projects','Construction and renovation work','Open'],
   ['maintenance','MT','Maintenance','Maintenance jobs and estimates','Jobs']
  ];
- return '<div class="dashHero"><div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div class="grow"><div style="font-size:11px;letter-spacing:1.4px;font-weight:900;color:#cfe4d9">DEEWARYN ENTERPRISE CLOUD</div><h1 style="margin-top:5px">Good to see you, '+esc(user?.name||'Admin')+'</h1><p>Manage your complete real-estate operation from one place — every client, property, staff action, deal and office expense stays organized and traceable.</p></div><div style="min-width:180px;text-align:right"><div style="font-size:12px;color:#cfe4d9">Net Profit</div><div style="font-size:30px;font-weight:900;color:#fff">'+money(d.profit)+'</div></div></div><div class="heroActions"><button class="btn gold" onclick="go(\'clientform\')">Send Client Form</button><button class="btn soft" onclick="go(\'properties\')">Add Property</button><button class="btn dark" onclick="go(\'crm\')">Open CRM</button></div></div>'+
+ return '<div class="dashHero"><div class="heroSummary"><div class="grow"><div class="heroEyebrow">DEEWARYN ENTERPRISE CLOUD</div><h1>Good to see you, '+esc(user?.name||'Admin')+'</h1><p>Clients, properties, staff, deals and office finance — all in one secure cloud system.</p></div><div class="heroProfit"><span>Net Profit</span><b>'+money(d.profit)+'</b></div></div><div class="heroActions"><button class="btn gold" onclick="go(\'clientform\')">Client Form</button><button class="btn soft" onclick="go(\'properties\')">Add Property</button><button class="btn dark" onclick="go(\'crm\')">Clients</button></div></div>'+
  '<div class="dashSection"><div class="sectionTitle"><h3>Business Areas</h3><span>QUICK ACCESS</span></div><div class="categoryGrid">'+cats.map((x,i)=>'<div class="categoryCard" style="animation-delay:'+(i*35)+'ms" onclick="go(\''+x[0]+'\')"><div class="catTop"><div class="catIcon">'+x[1]+'</div><div class="catText"><b>'+x[2]+'</b><small>'+x[3]+'</small></div></div><div class="catBottom"><strong>'+x[4]+'</strong><div class="catArrow">›</div></div></div>').join('')+'</div></div>'+
  '<div class="dashSection"><div class="sectionTitle"><h3>Live Performance</h3><span>THIS MONTH</span></div><div class="grid kpis">'+[
  ['Available Properties',d.available_properties],['Pending Clients',d.pending_clients],['Open Deals',d.open_deals],['Won Deals',d.won_deals],
