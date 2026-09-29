@@ -497,16 +497,16 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 .dashHero:after{content:"";position:absolute;inset:-30% auto -30% -30%;width:35%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent);transform:skewX(-20deg);animation:sheen 7s linear infinite}
 .dashHero h1{margin:0;font-size:32px}.dashHero p{margin:7px 0 0;color:#d6e7df;max-width:760px;line-height:1.5}.heroActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
 .dashSection{margin-top:17px}.sectionTitle{display:flex;align-items:center;gap:9px;margin-bottom:10px}.sectionTitle h3{margin:0;font-size:15px}.sectionTitle span{font-size:10px;background:#eaf6ef;color:var(--g2);padding:5px 8px;border-radius:999px;font-weight:900}
-.categoryGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.categoryCard{position:relative;overflow:hidden;background:#fff;border:1px solid #e1e9e4;border-radius:16px;padding:13px 14px;min-height:104px;cursor:pointer;transition:.2s;animation:rise .35s ease both;box-shadow:0 8px 22px rgba(17,37,29,.045)}
+.categoryGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.categoryCard{position:relative;overflow:hidden;background:linear-gradient(180deg,#fff,#fbfdfc);border:1px solid #e3ebe6;border-radius:14px;padding:10px 11px;min-height:86px;cursor:pointer;transition:.2s;animation:rise .32s ease both;box-shadow:0 5px 15px rgba(17,37,29,.04)}
 .categoryCard:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--g),var(--gold))}
-.categoryCard:hover{transform:translateY(-3px);border-color:#bfd6c8;box-shadow:0 14px 28px rgba(17,37,29,.09)}
-.catTop{display:flex;align-items:center;gap:10px}
-.catIcon{width:32px;height:32px;border-radius:10px;background:#edf7f1;color:var(--g2);display:grid;place-items:center;font-size:12px;font-weight:900;flex:0 0 32px}
-.catText{min-width:0;flex:1}.categoryCard b{font-size:14px;display:block;line-height:1.2}.categoryCard small{display:block;color:var(--muted);margin-top:3px;line-height:1.25;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.catBottom{display:flex;align-items:center;margin-top:11px}.categoryCard strong{display:block;font-size:18px;color:var(--g2)}.catArrow{margin-left:auto;width:27px;height:27px;border-radius:50%;background:#edf7f1;color:var(--g2);display:grid;place-items:center;font-size:16px;font-weight:900}
+.categoryCard:hover{transform:translateY(-2px);border-color:#bfd6c8;box-shadow:0 10px 20px rgba(17,37,29,.07)}
+.catTop{display:flex;align-items:center;gap:8px}
+.catIcon{width:28px;height:28px;border-radius:9px;background:#edf7f1;color:var(--g2);display:grid;place-items:center;font-size:10px;font-weight:900;flex:0 0 28px}
+.catText{min-width:0;flex:1}.categoryCard b{font-size:12px;display:block;line-height:1.15}.categoryCard small{display:block;color:var(--muted);margin-top:2px;line-height:1.2;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.catBottom{display:flex;align-items:center;margin-top:7px}.categoryCard strong{display:block;font-size:15px;color:var(--g2)}.catArrow{margin-left:auto;width:22px;height:22px;border-radius:50%;background:#edf7f1;color:var(--g2);display:grid;place-items:center;font-size:14px;font-weight:900}
 .kpi{animation:rise .45s ease both}.kpi:hover{animation:pulseGlow 1.6s ease infinite}.aboutBox{background:linear-gradient(135deg,#fff,#f4faf6);border:1px solid #dce9e1;border-radius:20px;padding:20px}.aboutLogo{font-size:26px;font-weight:900}.aboutLogo span{color:var(--g)}.aboutTags{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.aboutTag{background:#edf6f1;color:#345947;padding:7px 9px;border-radius:999px;font-size:11px;font-weight:800}
-@media(max-width:1200px){.categoryGrid{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.categoryGrid{grid-template-columns:1fr}.categoryCard{min-height:96px}}
+@media(min-width:1350px){.categoryGrid{grid-template-columns:repeat(5,minmax(0,1fr))}}@media(max-width:1200px){.categoryGrid{grid-template-columns:repeat(3,1fr)}}@media(max-width:650px){.categoryGrid{grid-template-columns:1fr}.categoryCard{min-height:96px}}
 @media(max-width:1000px){
  .shell{grid-template-columns:1fr}
  .top{height:auto;min-height:64px;padding:10px 12px;gap:8px;flex-wrap:nowrap}
@@ -523,7 +523,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
  .dashHero{padding:18px;border-radius:18px}.dashHero h1{font-size:24px}.dashHero p{font-size:12px}.heroActions{gap:6px}.heroActions .btn{font-size:11px;padding:8px 10px}
  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.kpi{padding:12px}.kpi b{font-size:18px}.kpi small{font-size:9px}
  .cols2{grid-template-columns:1fr}.finrow{grid-template-columns:1fr 1fr 1fr;gap:7px}
- .categoryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.categoryCard{min-height:92px;padding:10px}.catIcon{width:28px;height:28px;flex-basis:28px}.categoryCard b{font-size:12px}.categoryCard small{font-size:9px}.categoryCard strong{font-size:16px}.catArrow{width:24px;height:24px}
+ .categoryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.categoryCard{min-height:82px;padding:9px}.catIcon{width:28px;height:28px;flex-basis:28px}.categoryCard b{font-size:12px}.categoryCard small{font-size:9px}.categoryCard strong{font-size:16px}.catArrow{width:24px;height:24px}
  .quick{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.quick button{padding:10px;font-size:11px}
  .toolbar{display:grid;grid-template-columns:1fr auto;gap:7px}.search{width:100%;min-width:0}
  .tablebox{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}.table{min-width:720px}.table th,.table td{padding:9px 8px;font-size:10px}.table th{font-size:9px}
@@ -534,7 +534,7 @@ button,input,select,textarea{font:inherit}.top{height:72px;background:linear-gra
 }
 @media(max-width:650px){
  .main{padding:10px 8px 88px}
- .categoryGrid{grid-template-columns:1fr 1fr}.categoryCard{min-height:88px;padding:9px}
+ .categoryGrid{grid-template-columns:1fr 1fr}.categoryCard{min-height:78px;padding:8px}
  .categoryCard small{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
  .kpis{grid-template-columns:1fr 1fr}.finrow{grid-template-columns:1fr}
  .dashHero h1{font-size:22px}.dashHero p{font-size:11px}
@@ -555,7 +555,7 @@ function logout(){localStorage.clear();token='';user=null;login()}
 const navMeta={
  dashboard:['⌂','Overview & KPIs'],
  about:['i','Company profile'],
- crm:['C','Leads & follow-ups'],
+ crm:['C','Clients & follow-ups'],
  deals:['D','Pipeline & closings'],
  clientform:['F','Send requirement link'],
  properties:['P','Inventory & listings'],
@@ -572,7 +572,7 @@ const navMeta={
 };
 const navGroups=[
  ['MAIN',[['dashboard','Dashboard'],['about','About Company']]],
- ['SALES & CLIENTS',[['crm','CRM / Clients'],['deals','Deals'],['clientform','Client Form']]],
+ ['SALES & CLIENTS',[['crm','Clients'],['deals','Deals'],['clientform','Client Form']]],
  ['PROPERTY',[['properties','Properties'],['matching','Smart Match']]],
  ['TEAM',[['staff','Staff Performance'],['userids','Staff IDs'],['messages','Staff Messages'],['activity','Activity Log'],['tasks','Tasks']]],
  ['FINANCE',[['finance','Finance'],['rent','Rent']]],
@@ -593,7 +593,7 @@ async function dashboard(){
  let d=await api('/api/mobile/dashboard');
  let follow=(d.followups||[]).slice(0,6);
  const cats=[
-  ['crm','CL','Clients','CRM, follow-ups and requirements',d.pending_clients],
+  ['crm','CL','Clients','Follow-ups & requirements',d.pending_clients],
   ['properties','PR','Properties','Sale, rent and inventory',d.available_properties],
   ['deals','DL','Deals','Negotiations and closing pipeline',d.open_deals],
   ['staff','ST','Staff','Performance and team activity',d.staff],
@@ -612,7 +612,7 @@ async function dashboard(){
  '<div class="card section"><div class="sectionTitle"><h3>Company Snapshot</h3><span>DEEWARYN</span></div><div class="aboutLogo">Dee<span>waryn</span></div><p class="muted" style="line-height:1.7">Real estate sales, rentals, property management, construction, renovation and maintenance across Rawalpindi & Islamabad.</p><div class="aboutTags"><span class="aboutTag">Sales</span><span class="aboutTag">Rentals</span><span class="aboutTag">Construction</span><span class="aboutTag">Maintenance</span></div><button class="btn green" style="margin-top:14px" onclick="go(\'about\')">View Company Profile</button></div></div>';
 }
 const cfg={
- crm:{api:'contacts',title:'CRM / Clients',primary:'name',cols:['name','phone','ctype','budget','location','stage','assigned','followup']},
+ crm:{api:'contacts',title:'Clients',primary:'name',cols:['name','phone','ctype','budget','location','stage','assigned','followup']},
  deals:{api:'deals',title:'Deals Pipeline',primary:'title',cols:['title','client','property_code','stage','deal_value','commission','assigned','next_action']},
  properties:{api:'properties',title:'Property Inventory',primary:'code',cols:['code','purpose','ptype','location','area','price','beds','status','owner','phone']},
  tasks:{api:'tasks',title:'Team Tasks',primary:'title',cols:['title','assigned','due','priority','status','related_to']},
